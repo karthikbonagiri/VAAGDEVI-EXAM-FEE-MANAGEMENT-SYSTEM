@@ -51,7 +51,7 @@
       <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
       <div class="logo-text"><h1>MASTER MINDS</h1><span>The Learning Hub</span></div>
     </div>
-    <a href="fee-entry.html" class="header-back-btn"><i class="fas fa-arrow-left"></i> Back to Fee Entry</a>
+    <button id="backButton" class="header-back-btn"><i class="fas fa-arrow-left"></i> Back to Fee Entry</button>
   </header>
 
   <div class="page-content">
@@ -124,6 +124,12 @@
 </div>
 
 <script>
+// Back button functionality
+document.getElementById('backButton').addEventListener('click', function() {
+  window.location.href = 'fee-entry.html';
+});
+
+// Rest of the existing script (unchanged)
 let allPayments      = [];
 let filteredPayments = [];
 let studentMap       = new Map();
@@ -262,8 +268,8 @@ function renderTable() {
       <td><button class="btn-delete-row" onclick="deletePayment('${p._id.replace(/'/g,"\\'")}','${escapeHtml(p.name).replace(/'/g,"\\'")}')">
           <i class="fas fa-trash"></i> Delete
         </button>
-       </td>
-    </tr>`;
+        </td>
+    </table>`;
   }).join('');
 
   container.innerHTML = `
