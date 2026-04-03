@@ -37,7 +37,7 @@
       <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
       <div class="logo-text"><h1>MASTER MINDS</h1><span>The Learning Hub</span></div>
     </div>
-    <a href="fee-entry.html" class="header-back-btn"><i class="fas fa-arrow-left"></i> Back to Fee Entry</a>
+    <button id="backButton" class="header-back-btn"><i class="fas fa-arrow-left"></i> Back to Fee Entry</button>
   </header>
 
   <div class="page-content">
@@ -97,6 +97,12 @@
 </div>
 
 <script>
+// Back button functionality
+document.getElementById('backButton').addEventListener('click', function() {
+  window.location.href = 'fee-entry.html';
+});
+
+// Rest of the existing script (unchanged)
 let allStudents  = [];
 let notPaidList  = [];
 let filteredList = [];
@@ -148,7 +154,6 @@ async function init() {
   }
 }
 
-// Local file fallback
 document.getElementById('localFallbackInput').addEventListener('change', async e => {
   if (!e.target.files.length) return;
   try {
