@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Master Minds | Not Paid Students</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;500;600&display=swap" rel="stylesheet">
@@ -14,19 +14,98 @@
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
+    /* Mobile responsive overrides for notpaid.html */
     .local-fallback {
-      background:#fff8e1; border:1.5px solid #fde68a; border-radius:12px;
-      padding:1rem 1.1rem; margin-bottom:1rem; display:none;
+      background: #fff8e1;
+      border: 1.5px solid #fde68a;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
     }
-    .local-fallback h4 { font-family:'Sora',sans-serif; font-size:.88rem; color:#92400e; margin-bottom:.4rem; }
-    .local-fallback p  { font-size:.8rem; color:#78350f; margin-bottom:.6rem; }
+    .local-fallback h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      color: #92400e;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
     .local-pick {
-      border:2px dashed #fcd34d; border-radius:10px; padding:.8rem;
-      text-align:center; cursor:pointer; background:#fffbeb;
+      border: 2px dashed #fcd34d;
+      border-radius: 10px;
+      padding: 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      background: #fffbeb;
     }
-    .local-pick:hover { border-color:#f59e0b; }
-    .local-pick input { display:none; }
-    .local-pick p { margin:0; font-size:.82rem; color:#92400e; font-weight:600; }
+    .local-pick:hover {
+      border-color: #f59e0b;
+    }
+    .local-pick input {
+      display: none;
+    }
+    .local-pick p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #92400e;
+      font-weight: 600;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 700px) {
+      .app-container {
+        margin: 0.5rem auto !important;
+      }
+      .main-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+        padding: 0.8rem;
+      }
+      .logo-area {
+        justify-content: center;
+      }
+      .page-content {
+        padding: 1rem;
+      }
+      .summary-strip {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+      }
+      .summary-chip {
+        justify-content: center;
+        font-size: 0.8rem;
+      }
+      .filter-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-bar .input-group {
+        width: 100%;
+      }
+      .notpaid-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.8rem;
+      }
+      .badge-unpaid {
+        align-self: flex-start;
+      }
+      .export-row {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .export-row button {
+        width: 100%;
+      }
+      .notpaid-card-meta {
+        font-size: 0.7rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -97,12 +176,11 @@
 </div>
 
 <script>
-// Back button functionality
+// Back button – use replace to avoid history issues
 document.getElementById('backButton').addEventListener('click', function() {
-  window.location.href = 'fee-entry.html';
+  window.location.replace('fee-entry.html');
 });
 
-// Rest of the existing script (unchanged)
 let allStudents  = [];
 let notPaidList  = [];
 let filteredList = [];
@@ -154,6 +232,7 @@ async function init() {
   }
 }
 
+// Local file fallback
 document.getElementById('localFallbackInput').addEventListener('change', async e => {
   if (!e.target.files.length) return;
   try {
