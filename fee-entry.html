@@ -220,10 +220,12 @@
     .stat-item {
       display: flex;
       justify-content: space-between;
-      padding: 0.6rem 0;
+      padding: 0.5rem 0;
       border-bottom: 1px solid #eef2f6;
+      font-size: 0.85rem;
     }
     .stat-item:last-child { border-bottom: none; }
+    .stat-value { font-weight: 700; }
     .upload-area {
       border: 2px dashed #e2e8f0;
       border-radius: 1rem;
@@ -357,11 +359,12 @@
       <div class="card">
         <div class="card-header"><i class="fas fa-chart-line"></i><h3>Quick Stats</h3></div>
         <div class="card-body">
-          <div class="stat-item"><span>Total Students</span><span id="statTotal">—</span></div>
-          <div class="stat-item"><span>Regular Paid</span><span id="statRegularPaid" style="color:#2e7d32;">—</span></div>
-          <div class="stat-item"><span>Backlog Paid</span><span id="statBacklogPaid" style="color:#1565c0;">—</span></div>
-          <div class="stat-item"><span>Not Paid (Regular)</span><span id="statNotPaid" style="color:#c62828;">—</span></div>
-          <div class="stat-item"><span>Total Collected</span><span id="statCollected">—</span></div>
+          <div class="stat-item"><span>Total Students</span><span class="stat-value" id="statTotal">—</span></div>
+          <div class="stat-item"><span>Regular & Backlog Paid</span><span class="stat-value" id="statBothPaid" style="color:#2e7d32;">—</span></div>
+          <div class="stat-item"><span>Only Regular Paid</span><span class="stat-value" id="statOnlyRegular" style="color:#1565c0;">—</span></div>
+          <div class="stat-item"><span>Only Backlog Paid</span><span class="stat-value" id="statOnlyBacklog" style="color:#f5b042;">—</span></div>
+          <div class="stat-item"><span>Not Paid (Regular)</span><span class="stat-value" id="statNotPaid" style="color:#c62828;">—</span></div>
+          <div class="stat-item"><span>Total Collected</span><span class="stat-value" id="statCollected">—</span></div>
         </div>
       </div>
       <div class="card">
@@ -424,7 +427,9 @@ loginBtn.addEventListener('click', async () => {
 });
 if (logoutBtn) logoutBtn.addEventListener('click', async () => { await auth.signOut(); window.location.href = 'index.html'; });
 
-let students = [], selectedStudent = null, regularPaidSet = new Set(), backlogPaidSet = new Set();
+let students = [], selectedStudent = null;
+let regularPaidSet = new Set();   // students with any regularFee > 0
+let backlogPaidSet = new Set();   // students with any backlogFee > 0
 
 const searchEl = document.getElementById('search'), clearBtn = document.getElementById('clearSearch'), cardEl = document.getElementById('studentCard');
 const saveBtn = document.getElementById('savePaymentBtn'), regularEl = document.getElementById('regular'), backlogEl = document.getElementById('backlog');
@@ -464,9 +469,16 @@ async function loadStats() {
       if (reg > 0) regularPaidSet.add(String(p.hall));
       if (back > 0) backlogPaidSet.add(String(p.hall));
     });
-    document.getElementById('statRegularPaid').textContent = regularPaidSet.size;
-    document.getElementById('statBacklogPaid').textContent = backlogPaidSet.size;
-    document.getElementById('statNotPaid').textContent = Math.max(0, students.length - regularPaidSet.size);
+    const totalStudents = students.length;
+    const bothPaid = [...regularPaidSet].filter(h => backlogPaidSet.has(h)).length;
+    const onlyRegular = [...regularPaidSet].filter(h => !backlogPaidSet.has(h)).length;
+    const onlyBacklog = [...backlogPaidSet].filter(h => !regularPaidSet.has(h)).length;
+    const notPaidRegular = totalStudents - regularPaidSet.size;
+    document.getElementById('statTotal').textContent = totalStudents;
+    document.getElementById('statBothPaid').textContent = bothPaid;
+    document.getElementById('statOnlyRegular').textContent = onlyRegular;
+    document.getElementById('statOnlyBacklog').textContent = onlyBacklog;
+    document.getElementById('statNotPaid').textContent = notPaidRegular;
     document.getElementById('statCollected').textContent = formatINR(totalCollected);
   } catch {}
 }
@@ -541,8 +553,8 @@ searchEl.addEventListener('input',function(){
   const found=students.find(s=>String(s['Hall Ticket']).toLowerCase()===val||(s['Name']&&s['Name'].toLowerCase().includes(val)));
   if(found){
     selectedStudent=found;
-    const isRegularPaid = regularPaidSet.has(String(found['Hall Ticket']));
-    cardEl.innerHTML=`<div class="student-info"><div class="student-name"><i class="fas fa-user-graduate"></i> ${escapeHtml(found['Name'])} <span class="badge ${isRegularPaid?'badge-paid':'badge-unpaid'}">${isRegularPaid?'Regular Paid':'Not Paid'}</span></div><div><i class="fas fa-id-card"></i> HT: ${escapeHtml(found['Hall Ticket'])}</div><div><i class="fas fa-user"></i> Father: ${escapeHtml(found['Father Name'])}</div><div><i class="fas fa-layer-group"></i> Group: ${escapeHtml(found['Group'])}</div><div><i class="fas fa-chart-bar"></i> Result: ${escapeHtml(found['Result'])}</div></div>`;
+    const hasRegular = regularPaidSet.has(String(found['Hall Ticket']));
+    cardEl.innerHTML=`<div class="student-info"><div class="student-name"><i class="fas fa-user-graduate"></i> ${escapeHtml(found['Name'])} <span class="badge ${hasRegular?'badge-paid':'badge-unpaid'}">${hasRegular?'Regular Paid':'Not Paid'}</span></div><div><i class="fas fa-id-card"></i> HT: ${escapeHtml(found['Hall Ticket'])}</div><div><i class="fas fa-user"></i> Father: ${escapeHtml(found['Father Name'])}</div><div><i class="fas fa-layer-group"></i> Group: ${escapeHtml(found['Group'])}</div><div><i class="fas fa-chart-bar"></i> Result: ${escapeHtml(found['Result'])}</div></div>`;
     regularEl.focus();
   } else {
     cardEl.innerHTML='<div class="placeholder-text">Student not found</div>';
