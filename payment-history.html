@@ -14,6 +14,53 @@
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
+    /* Ensure table displays properly */
+    .table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .payment-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 900px;
+    }
+    .payment-table th,
+    .payment-table td {
+      border: 1px solid #dde4f0;
+      padding: 0.7rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .payment-table th {
+      background: #1e4663;
+      color: white;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .payment-table tbody tr:hover {
+      background: #f8faff;
+    }
+    .mode-pill {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .mode-cash {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .mode-online {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    .td-amount {
+      font-weight: 700;
+      white-space: nowrap;
+    }
     .cors-alert-history {
       background: #fff8e1;
       border: 1.5px solid #fde68a;
@@ -21,15 +68,6 @@
       padding: 1rem;
       margin-bottom: 1rem;
       display: none;
-    }
-    .cors-alert-history h4 {
-      font-family: 'Sora', sans-serif;
-      font-size: 0.9rem;
-      color: #92400e;
-      margin-bottom: 0.4rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
     }
     .local-pick {
       border: 2px dashed #fcd34d;
@@ -41,83 +79,79 @@
       margin-top: 0.6rem;
     }
     .local-pick input { display: none; }
-    .local-pick p { margin: 0; font-size: 0.85rem; color: #92400e; font-weight: 600; }
-    .table-wrapper {
-      overflow-x: auto;
-      width: 100%;
+    .summary-strip {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
     }
-    .data-table {
-      min-width: 1100px;
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    .data-table th, .data-table td {
-      padding: 0.7rem;
-      text-align: left;
-      border: 1px solid var(--border);
-    }
-    .data-table th {
-      background: var(--navy);
-      color: white;
+    .summary-chip {
+      background: #eef2f8;
+      border: 1px solid #dde4f0;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
-    .data-table tbody tr:hover {
-      background: #f8faff;
+    .summary-chip.green {
+      background: #e8f5e9;
+      border-color: #c8e6c9;
+      color: #2e7d32;
     }
-    .td-amount {
-      font-family: 'Sora', sans-serif;
-      font-weight: 700;
+    .filter-bar {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      align-items: flex-end;
     }
-    .mode-pill {
+    .filter-bar .input-group {
+      flex: 1;
+      min-width: 130px;
+    }
+    .filter-bar label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    .filter-bar input, .filter-bar select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #dde4f0;
+    }
+    .btn-primary, .btn-secondary {
+      padding: 0.6rem 1.2rem;
+      border-radius: 40px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
-      padding: 0.2rem 0.65rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      gap: 0.5rem;
     }
-    .mode-cash {
-      background: #e8f5e9;
-      color: var(--green);
+    .btn-primary {
+      background: linear-gradient(95deg, #1e4663, #2b5c84);
+      color: white;
     }
-    .mode-online {
-      background: #e3f2fd;
-      color: #1565c0;
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #1e4663;
+    }
+    .export-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
     @media (max-width: 700px) {
-      .main-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-        padding: 0.8rem;
-      }
-      .logo-area {
-        justify-content: center;
-      }
-      .page-content {
-        padding: 1rem;
-      }
-      .summary-strip {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filter-bar {
-        flex-direction: column;
-      }
-      .filter-bar .input-group {
-        width: 100%;
-      }
-      .data-table {
-        font-size: 0.7rem;
-      }
-      .data-table th, .data-table td {
-        padding: 0.4rem;
-      }
-      .export-row {
-        flex-direction: column;
-      }
+      .filter-bar { flex-direction: column; }
+      .filter-bar .input-group { width: 100%; }
+      .export-row { flex-direction: column; }
+      .summary-strip { flex-direction: column; }
+      .payment-table { font-size: 0.7rem; }
+      .payment-table th, .payment-table td { padding: 0.4rem; }
     }
   </style>
 </head>
@@ -149,7 +183,7 @@
     <!-- Summary chips -->
     <div class="summary-strip" id="summaryStrip" style="display:none;">
       <div class="summary-chip"><i class="fas fa-receipt"></i> Records: <strong id="chipCount">0</strong></div>
-      <div class="summary-chip green"><i class="fas fa-rupee-sign"></i> Total Collected: <strong id="chipTotal">₹0</strong></div>
+      <div class="summary-chip green"><i class="fas fa-rupee-sign"></i> Total: <strong id="chipTotal">₹0</strong></div>
       <div class="summary-chip"><i class="fas fa-money-bill-wave"></i> Regular: <strong id="chipRegular">₹0</strong></div>
       <div class="summary-chip"><i class="fas fa-clock"></i> Backlog: <strong id="chipBacklog">₹0</strong></div>
     </div>
@@ -158,7 +192,7 @@
     <div class="filter-bar">
       <div class="input-group">
         <label><i class="fas fa-search"></i> Search</label>
-        <input type="text" id="filterSearch" placeholder="Name or Hall Ticket…">
+        <input type="text" id="filterSearch" placeholder="Name or Hall Ticket">
       </div>
       <div class="input-group">
         <label><i class="fas fa-layer-group"></i> Group</label>
@@ -169,50 +203,45 @@
         <select id="filterMode"><option value="">All Modes</option><option>Cash</option><option>Online</option></select>
       </div>
       <div class="input-group">
-        <label><i class="fas fa-calendar-alt"></i> From Date</label>
+        <label><i class="fas fa-calendar-alt"></i> From</label>
         <input type="date" id="filterFrom">
       </div>
       <div class="input-group">
-        <label><i class="fas fa-calendar-alt"></i> To Date</label>
+        <label><i class="fas fa-calendar-alt"></i> To</label>
         <input type="date" id="filterTo">
       </div>
-      <div class="input-group" style="display:flex;align-items:flex-end;">
-        <button class="btn-secondary" id="clearFiltersBtn" style="margin-top:0;width:auto;padding:.55rem 1rem;">
-          <i class="fas fa-times"></i> Clear
-        </button>
+      <div class="input-group" style="flex: 0;">
+        <button class="btn-secondary" id="clearFiltersBtn" style="margin-top:0;">Clear</button>
       </div>
     </div>
 
     <!-- Table container -->
     <div id="historyContainer">
-      <div class="placeholder-text"><i class="fas fa-spinner fa-spin"></i>&nbsp; Loading payment records…</div>
+      <div class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Loading payment records…</div>
     </div>
 
     <!-- Export -->
     <div class="export-row">
-      <button class="btn-primary" id="exportBtn" style="margin-top:0;">
-        <i class="fas fa-file-excel"></i> Export to Excel
-      </button>
+      <button class="btn-primary" id="exportBtn"><i class="fas fa-file-excel"></i> Export to Excel</button>
     </div>
   </div>
 
   <footer class="main-footer">
-    <p>Developed by Karthik Bonagiri &nbsp;|&nbsp; Master Minds – The Learning Hub &nbsp;|&nbsp; +91 90148 95357</p>
+    <p>Developed by Karthik Bonagiri | Master Minds – The Learning Hub | +91 90148 95357</p>
   </footer>
 </div>
 
 <script>
 // Back button
-document.getElementById('backButton').addEventListener('click', function() {
+document.getElementById('backButton').addEventListener('click', () => {
   window.location.replace('fee-entry.html');
 });
 
-let allPayments      = [];
+let allPayments = [];
 let filteredPayments = [];
-let studentMap       = new Map(); // Hall Ticket -> student object (Group, Result)
-let groupsSet        = new Set();
+let studentMap = new Map();
+let groupsSet = new Set();
 
-// Load students from cloud or local fallback
 async function loadStudentData() {
   try {
     const students = await loadStudentsFromCloud();
@@ -224,9 +253,7 @@ async function loadStudentData() {
     });
     updateGroupFilter();
     document.getElementById('corsAlert').style.display = 'none';
-    console.log(`Loaded ${studentMap.size} students for group/result lookup`);
   } catch (err) {
-    console.warn(err);
     if (err.type === 'CORS_ERROR' || err.type === 'FIREBASE_ERROR') {
       document.getElementById('corsAlert').style.display = 'block';
     } else {
@@ -248,7 +275,7 @@ function updateGroupFilter() {
   if (currentVal && groupsSet.has(currentVal)) groupSelect.value = currentVal;
 }
 
-// Local file fallback for student list
+// Local fallback
 document.getElementById('localStudentInput').addEventListener('change', async (e) => {
   if (!e.target.files.length) return;
   try {
@@ -268,49 +295,45 @@ document.getElementById('localStudentInput').addEventListener('change', async (e
   e.target.value = '';
 });
 
-// Load payments from Firestore
 async function loadPayments() {
   try {
     const snap = await paymentsCollection.orderBy('timestamp', 'desc').get();
     allPayments = [];
-    snap.forEach(doc => allPayments.push({ _id: doc.id, ...doc.data() }));
+    snap.forEach(doc => allPayments.push({ id: doc.id, ...doc.data() }));
     document.getElementById('summaryStrip').style.display = 'flex';
     applyFilters();
   } catch (err) {
-    document.getElementById('historyContainer').innerHTML =
-      `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${escapeHtml(err.message)}</p></div>`;
+    document.getElementById('historyContainer').innerHTML = `<div class="empty-state">Error: ${escapeHtml(err.message)}</div>`;
   }
 }
 
 function updateSummary(list) {
   let reg = 0, back = 0;
   list.forEach(p => {
-    reg  += parseFloat(p.regularFee) || 0;
+    reg += parseFloat(p.regularFee) || 0;
     back += parseFloat(p.backlogFee) || 0;
   });
-  document.getElementById('chipCount').textContent   = list.length;
-  document.getElementById('chipTotal').textContent   = formatINR(reg + back);
+  document.getElementById('chipCount').textContent = list.length;
+  document.getElementById('chipTotal').textContent = formatINR(reg + back);
   document.getElementById('chipRegular').textContent = formatINR(reg);
   document.getElementById('chipBacklog').textContent = formatINR(back);
 }
 
 function applyFilters() {
   const search = document.getElementById('filterSearch').value.trim().toLowerCase();
-  const group  = document.getElementById('filterGroup').value;
-  const mode   = document.getElementById('filterMode').value;
-  const from   = document.getElementById('filterFrom').value;
-  const to     = document.getElementById('filterTo').value;
+  const group = document.getElementById('filterGroup').value;
+  const mode = document.getElementById('filterMode').value;
+  const from = document.getElementById('filterFrom').value;
+  const to = document.getElementById('filterTo').value;
 
   filteredPayments = allPayments.filter(p => {
     const student = studentMap.get(String(p.hall));
     const studentGroup = student ? (student['Group'] || '') : '';
-    const matchSearch = !search ||
-      (p.name && p.name.toLowerCase().includes(search)) ||
-      (p.hall && String(p.hall).toLowerCase().includes(search));
+    const matchSearch = !search || (p.name && p.name.toLowerCase().includes(search)) || (p.hall && String(p.hall).toLowerCase().includes(search));
     const matchGroup = !group || studentGroup === group;
     const matchMode = !mode || p.mode === mode;
     const matchFrom = !from || p.date >= from;
-    const matchTo   = !to   || p.date <= to;
+    const matchTo = !to || p.date <= to;
     return matchSearch && matchGroup && matchMode && matchFrom && matchTo;
   });
 
@@ -321,73 +344,58 @@ function applyFilters() {
 function renderTable() {
   const container = document.getElementById('historyContainer');
   if (filteredPayments.length === 0) {
-    container.innerHTML = `<div class="empty-state">
-      <i class="fas fa-receipt"></i>
-      <p>${allPayments.length === 0 ? 'No payments recorded yet.' : 'No records match your filter.'}</p>
-    </div>`;
+    container.innerHTML = `<div class="empty-state">${allPayments.length === 0 ? 'No payments recorded yet.' : 'No records match your filter.'}</div>`;
     return;
   }
 
-  const rows = filteredPayments.map(p => {
+  // Build HTML table string
+  let html = `<div class="table-wrapper"><table class="payment-table">
+    <thead>
+      <tr><th>Hall Ticket</th><th>Name</th><th>Group</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Result</th><th>Mode</th><th>UTR</th><th>Date</th></tr>
+    </thead>
+    <tbody>`;
+  filteredPayments.forEach(p => {
     const student = studentMap.get(String(p.hall));
-    const group   = student ? (student['Group'] || '—') : '—';
-    const result  = student ? (student['Result'] || '—') : '—';
+    const group = student && student['Group'] ? student['Group'] : '—';
+    const result = student && student['Result'] ? student['Result'] : '—';
     const total = (parseFloat(p.regularFee) || 0) + (parseFloat(p.backlogFee) || 0);
     const modeClass = p.mode === 'Online' ? 'mode-online' : 'mode-cash';
-    const modeIcon  = p.mode === 'Online' ? '📱' : '💵';
-    return `<tr>
+    html += `<tr>
       <td>${escapeHtml(p.hall)}</td>
-      <td class="td-name">${escapeHtml(p.name)}</td>
+      <td>${escapeHtml(p.name)}</td>
       <td>${escapeHtml(group)}</td>
-      <td class="td-amount" style="color:var(--green);">${formatINR(p.regularFee)}</td>
-      <td class="td-amount" style="color:var(--navy-light);">${formatINR(p.backlogFee)}</td>
+      <td class="td-amount">${formatINR(p.regularFee)}</td>
+      <td class="td-amount">${formatINR(p.backlogFee)}</td>
       <td class="td-amount"><strong>${formatINR(total)}</strong></td>
       <td>${escapeHtml(result)}</td>
-      <td><span class="mode-pill ${modeClass}">${modeIcon} ${escapeHtml(p.mode)}</span></td>
+      <td><span class="mode-pill ${modeClass}">${p.mode === 'Online' ? '📱' : '💵'} ${escapeHtml(p.mode)}</span></td>
       <td>${escapeHtml(p.utr || '—')}</td>
       <td>${escapeHtml(p.date)}</td>
-    </table>`;
-  }).join('');
-
-  container.innerHTML = `
-    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem;">
-      Showing <strong>${filteredPayments.length}</strong> of <strong>${allPayments.length}</strong> record${allPayments.length !== 1 ? 's' : ''}
-    </div>
-    <div class="table-wrapper">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Hall Ticket</th><th>Name</th><th>Group</th>
-            <th>Regular (₹)</th><th>Backlog (₹)</th>
-            <th>Total (₹)</th><th>Result</th><th>Mode</th>
-            <th>UTR</th><th>Date</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+    </tr>`;
+  });
+  html += `</tbody></table></div><div style="margin-top:0.5rem; font-size:0.8rem;">Showing ${filteredPayments.length} of ${allPayments.length} records</div>`;
+  container.innerHTML = html;
 }
 
-// Event listeners for filters
-['filterSearch', 'filterFrom', 'filterTo'].forEach(id =>
-  document.getElementById(id).addEventListener('input', applyFilters));
+// Event listeners
+['filterSearch', 'filterFrom', 'filterTo'].forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
 document.getElementById('filterGroup').addEventListener('change', applyFilters);
 document.getElementById('filterMode').addEventListener('change', applyFilters);
-
 document.getElementById('clearFiltersBtn').addEventListener('click', () => {
-  ['filterSearch', 'filterFrom', 'filterTo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('filterSearch').value = '';
   document.getElementById('filterGroup').value = '';
   document.getElementById('filterMode').value = '';
+  document.getElementById('filterFrom').value = '';
+  document.getElementById('filterTo').value = '';
   applyFilters();
 });
 
-// Export to Excel
 document.getElementById('exportBtn').addEventListener('click', () => {
   if (!filteredPayments.length) { showToast('No records to export.', 'info'); return; }
   const exportData = filteredPayments.map(p => {
     const student = studentMap.get(String(p.hall));
-    const group   = student ? (student['Group'] || '—') : '—';
-    const result  = student ? (student['Result'] || '—') : '—';
+    const group = student ? (student['Group'] || '—') : '—';
+    const result = student ? (student['Result'] || '—') : '—';
     return {
       'Hall Ticket': p.hall,
       'Name': p.name,
@@ -405,7 +413,6 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   showToast('Exported!', 'success');
 });
 
-// Initialize
 loadStudentData();
 loadPayments();
 </script>
