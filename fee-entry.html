@@ -360,6 +360,7 @@
         <div class="card-header"><i class="fas fa-chart-line"></i><h3>Quick Stats</h3></div>
         <div class="card-body">
           <div class="stat-item"><span>Total Students</span><span class="stat-value" id="statTotal">—</span></div>
+          <div class="stat-item"><span>Total Paid (Any)</span><span class="stat-value" id="statTotalPaid" style="color:#2e7d32;">—</span></div>
           <div class="stat-item"><span>Regular & Backlog Paid</span><span class="stat-value" id="statBothPaid" style="color:#2e7d32;">—</span></div>
           <div class="stat-item"><span>Only Regular Paid</span><span class="stat-value" id="statOnlyRegular" style="color:#1565c0;">—</span></div>
           <div class="stat-item"><span>Only Backlog Paid</span><span class="stat-value" id="statOnlyBacklog" style="color:#f5b042;">—</span></div>
@@ -430,6 +431,7 @@ if (logoutBtn) logoutBtn.addEventListener('click', async () => { await auth.sign
 let students = [], selectedStudent = null;
 let regularPaidSet = new Set();   // students with any regularFee > 0
 let backlogPaidSet = new Set();   // students with any backlogFee > 0
+let anyPaidSet = new Set();       // students with any fee (regular OR backlog)
 
 const searchEl = document.getElementById('search'), clearBtn = document.getElementById('clearSearch'), cardEl = document.getElementById('studentCard');
 const saveBtn = document.getElementById('savePaymentBtn'), regularEl = document.getElementById('regular'), backlogEl = document.getElementById('backlog');
@@ -461,6 +463,7 @@ async function loadStats() {
     const payments = []; snap.forEach(doc => payments.push(doc.data()));
     regularPaidSet.clear();
     backlogPaidSet.clear();
+    anyPaidSet.clear();
     let totalCollected = 0;
     payments.forEach(p => {
       const reg = parseFloat(p.regularFee) || 0;
@@ -468,13 +471,16 @@ async function loadStats() {
       totalCollected += reg + back;
       if (reg > 0) regularPaidSet.add(String(p.hall));
       if (back > 0) backlogPaidSet.add(String(p.hall));
+      if (reg > 0 || back > 0) anyPaidSet.add(String(p.hall));
     });
     const totalStudents = students.length;
     const bothPaid = [...regularPaidSet].filter(h => backlogPaidSet.has(h)).length;
     const onlyRegular = [...regularPaidSet].filter(h => !backlogPaidSet.has(h)).length;
     const onlyBacklog = [...backlogPaidSet].filter(h => !regularPaidSet.has(h)).length;
     const notPaidRegular = totalStudents - regularPaidSet.size;
+    const totalPaidAny = anyPaidSet.size;
     document.getElementById('statTotal').textContent = totalStudents;
+    document.getElementById('statTotalPaid').textContent = totalPaidAny;
     document.getElementById('statBothPaid').textContent = bothPaid;
     document.getElementById('statOnlyRegular').textContent = onlyRegular;
     document.getElementById('statOnlyBacklog').textContent = onlyBacklog;
@@ -582,6 +588,7 @@ saveBtn.addEventListener('click',async()=>{
     await paymentsCollection.add({ hall:ht, name:selectedStudent['Name'], fatherName:selectedStudent['Father Name']||'', group:selectedStudent['Group']||'', regularFee:regular||'0', backlogFee:backlog||'0', mode, utr, date, timestamp:Date.now() });
     if(regular>0) regularPaidSet.add(ht);
     if(backlog>0) backlogPaidSet.add(ht);
+    if(regular>0 || backlog>0) anyPaidSet.add(ht);
     showToast(`Payment saved for ${selectedStudent['Name']}`,'success');
     regularEl.value='0'; backlogEl.value='0'; utrEl.value=''; dateEl.value=new Date().toISOString().split('T')[0];
     updateTotal();
