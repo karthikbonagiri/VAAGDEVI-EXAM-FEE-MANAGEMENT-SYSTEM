@@ -15,59 +15,167 @@
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
-    /* Compact styles to reduce scrolling */
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.98);
+    /* Compact base styles */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #eef2f8;
+      margin: 0;
+      padding: 1rem;
+    }
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    /* Header */
+    .main-header {
+      background: linear-gradient(135deg, #0b2b3b, #1a4a6f);
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .logo-area { display: flex; align-items: center; gap: 0.8rem; }
+    .logo-icon {
+      background: linear-gradient(145deg, #f5b042, #e09d2a);
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10000;
-      flex-direction: column;
-      gap: 1rem;
     }
-    .loading-screen i { font-size: 3rem; color: #f5b042; }
-    .cors-alert { background:#fff8e1; border:1.5px solid #fde68a; border-radius:12px; padding:0.8rem; margin-top:.5rem; display:none; font-size:0.8rem; }
-    .cors-alert .local-drop { border:2px dashed #fcd34d; border-radius:10px; padding:0.5rem; text-align:center; cursor:pointer; background:#fffbeb; }
-    #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
-    .login-card { background:white; padding:2rem; border-radius:28px; max-width:360px; text-align:center; }
-    .modal { display:none; position:fixed; z-index:10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; }
-    .modal-content { background:white; padding:1.5rem; border-radius:24px; max-width:450px; width:90%; }
-    /* Compact main grid */
+    .logo-icon i { font-size: 1.6rem; color: white; }
+    .logo-text h1 { font-size: 1.1rem; font-weight: 800; color: white; margin: 0; }
+    .logo-text span { font-size: 0.65rem; color: #f5b042; }
+    .header-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      color: #ffeaaf;
+    }
+    .header-links { display: flex; gap: 0.5rem; }
+    .header-link {
+      background: rgba(255,255,255,0.15);
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .header-link:hover { background: rgba(255,255,255,0.3); }
+    /* Two‑column layout for student lookup */
+    .lookup-row {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-bottom: 1px solid #eef2f6;
+    }
+    .search-col {
+      flex: 1;
+      min-width: 200px;
+    }
+    .student-detail-col {
+      flex: 1.5;
+    }
+    .search-wrapper {
+      position: relative;
+    }
+    .search-wrapper i {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
+    #search {
+      width: 100%;
+      padding: 0.6rem 0.6rem 0.6rem 2.2rem;
+      border-radius: 40px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.9rem;
+    }
+    .clear-btn {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      display: none;
+    }
+    .student-info-card {
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid #eef2f6;
+      padding: 0.8rem;
+      min-height: 100px;
+    }
+    .student-info {
+      font-size: 0.85rem;
+    }
+    .student-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
+      margin-left: 0.5rem;
+    }
+    .badge-paid { background: #e8f5e9; color: #2e7d32; }
+    .badge-unpaid { background: #fff8e1; color: #b45309; }
+    .placeholder-text {
+      color: #6c86a3;
+      text-align: center;
+      padding: 1rem;
+    }
+    /* Main grid (payment form + right column) */
     .main-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
+      grid-template-columns: 1fr 320px;
       gap: 1rem;
       padding: 1rem;
     }
     .card {
-      margin-bottom: 0.8rem;
-    }
-    .card-body {
-      padding: 0.8rem;
+      background: white;
+      border-radius: 1rem;
+      border: 1px solid #eef2f6;
+      margin-bottom: 1rem;
     }
     .card-header {
-      padding: 0.6rem 1rem;
-    }
-    .form-row {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #eef2f6;
+      display: flex;
+      align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.5rem;
     }
-    .input-group label {
-      font-size: 0.7rem;
-      margin-bottom: 0.2rem;
-    }
+    .card-header i { color: #f5b042; font-size: 1.1rem; }
+    .card-header h3 { font-size: 1rem; margin: 0; }
+    .card-body { padding: 0.8rem; }
+    .form-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .input-group { flex: 1; min-width: 100px; }
+    .input-group label { font-size: 0.7rem; font-weight: 600; display: block; margin-bottom: 0.2rem; }
     input, select {
+      width: 100%;
       padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
       font-size: 0.85rem;
-    }
-    .btn-primary, .btn-secondary {
-      padding: 0.5rem;
-      margin-top: 0.2rem;
     }
     .total-amount {
       background: #e8f5e9;
@@ -75,57 +183,61 @@
       padding: 0.4rem;
       text-align: center;
       font-weight: 700;
-      font-size: 1rem;
-      margin: 0.3rem 0;
+      margin: 0.5rem 0;
     }
-    .student-info {
-      font-size: 0.8rem;
+    .btn-primary, .btn-secondary {
+      width: 100%;
       padding: 0.5rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      margin-top: 0.3rem;
     }
+    .btn-primary { background: linear-gradient(95deg, #1e4663, #2b5c84); color: white; }
+    .btn-secondary { background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e4663; }
     .stat-item {
+      display: flex;
+      justify-content: space-between;
       padding: 0.4rem 0;
+      border-bottom: 1px solid #eef2f6;
     }
     .upload-area {
-      padding: 0.8rem;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
     }
-    .header-admin-link {
-      padding: 0.3rem 0.8rem;
+    .cors-alert { background: #fff8e1; border-radius: 8px; padding: 0.5rem; margin-top: 0.5rem; display: none; }
+    .local-drop { border: 1px dashed #fcd34d; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; }
+    footer {
+      background: #0f2c3a;
+      text-align: center;
+      padding: 0.6rem;
       font-size: 0.7rem;
-    }
-    .main-header {
-      padding: 0.6rem 1rem;
-    }
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-    }
-    .logo-icon i {
-      font-size: 1.4rem;
-    }
-    .logo-text h1 {
-      font-size: 1.1rem;
+      color: #9cb8cc;
     }
     @media (max-width: 800px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
-      .col-right {
-        order: -1;
-      }
+      .lookup-row { flex-direction: column; }
+      .main-grid { grid-template-columns: 1fr; }
+      .col-right { order: -1; }
+      .header-links { margin-top: 0.3rem; }
     }
   </style>
 </head>
 <body>
-<div id="loadingScreen" class="loading-screen">
-  <i class="fas fa-spinner fa-pulse fa-3x"></i>
+<div id="loadingScreen" class="loading-screen" style="display:flex; position:fixed; inset:0; background:white; z-index:10000; align-items:center; justify-content:center; flex-direction:column;">
+  <i class="fas fa-spinner fa-pulse fa-3x" style="color:#f5b042;"></i>
   <p>Loading...</p>
 </div>
-<div id="loginOverlay" style="display:none;">
-  <div class="login-card">
-    <i class="fas fa-lock"></i>
+<div id="loginOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center;">
+  <div class="login-card" style="background:white; padding:2rem; border-radius:28px; max-width:360px; text-align:center;">
+    <i class="fas fa-lock" style="font-size:3rem; color:#f5b042;"></i>
     <h2>Exam Fee Management</h2>
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
+    <input type="email" id="loginEmail" placeholder="Email" style="width:100%; margin:0.5rem 0; padding:0.8rem; border-radius:40px;">
+    <input type="password" id="loginPassword" placeholder="Password" style="width:100%; margin:0.5rem 0; padding:0.8rem; border-radius:40px;">
     <button id="loginBtn" class="btn-primary">Sign In</button>
     <div id="loginError" style="color:red; font-size:0.8rem;"></div>
     <p style="font-size:0.7rem; margin-top:1rem;">Developed by Karthik Bonagiri</p>
@@ -137,24 +249,32 @@
       <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
       <div class="logo-text"><h1>VAAGDEVI DEGREE COLLEGE, BOATH</h1><span>Powered by MASTER MINDS</span></div>
     </div>
-    <div style="display:flex; align-items:center; gap:0.3rem;">
+    <div class="header-links">
       <div class="header-badge" id="loadModeBadge"><i class="fas fa-cloud"></i> Cloud</div>
-      <a href="admin.html" class="header-admin-link"><i class="fas fa-user-shield"></i> Admin</a>
-      <a href="index.html" class="header-admin-link"><i class="fas fa-home"></i> Home</a>
+      <a href="admin.html" class="header-link"><i class="fas fa-user-shield"></i> Admin</a>
+      <a href="index.html" class="header-link"><i class="fas fa-home"></i> Home</a>
     </div>
   </header>
+
+  <!-- Search + Student Details side by side -->
+  <div class="lookup-row">
+    <div class="search-col">
+      <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search" placeholder="Hall Ticket or Name" autocomplete="off">
+        <button class="clear-btn" id="clearSearch"><i class="fas fa-times"></i></button>
+      </div>
+      <button id="addStudentBtn" class="btn-secondary" style="margin-top:0.5rem;"><i class="fas fa-user-plus"></i> Add New Student</button>
+    </div>
+    <div class="student-detail-col">
+      <div id="studentCard" class="student-info-card">
+        <div class="placeholder-text">Select a student to see details</div>
+      </div>
+    </div>
+  </div>
+
   <div class="main-grid">
     <div class="col-left">
-      <!-- Student Lookup -->
-      <div class="card">
-        <div class="card-header"><i class="fas fa-user-graduate"></i><h3>Student Lookup</h3></div>
-        <div class="card-body">
-          <div class="search-wrapper"><i class="fas fa-search search-icon"></i><input type="text" id="search" placeholder="Hall Ticket or Name" autocomplete="off"><button class="clear-btn" id="clearSearch"><i class="fas fa-times"></i></button></div>
-          <div id="studentCard" class="student-info-card"><div class="placeholder-text">Type to search</div></div>
-          <button id="addStudentBtn" class="btn-secondary" style="margin-top:0.5rem; padding:0.3rem;"><i class="fas fa-user-plus"></i> Add Student</button>
-        </div>
-      </div>
-      <!-- Payment Form -->
       <div class="card">
         <div class="card-header"><i class="fas fa-rupee-sign"></i><h3>Record Payment</h3></div>
         <div class="card-body">
@@ -167,50 +287,65 @@
             <div class="input-group"><label>Mode</label><select id="mode"><option value="Cash">💵 Cash</option><option value="Online">📱 Online</option></select></div>
             <div class="input-group" id="utrGroup" style="display:none;"><label>UTR</label><input type="text" id="utr" placeholder="Transaction ID"></div>
           </div>
-          <div class="form-row">
-            <div class="input-group"><label>Date</label><input type="date" id="date"></div>
-          </div>
+          <div class="form-row"><div class="input-group"><label>Date</label><input type="date" id="date"></div></div>
           <button class="btn-primary" id="savePaymentBtn"><i class="fas fa-save"></i> Save Payment</button>
         </div>
       </div>
     </div>
     <div class="col-right">
-      <div class="nav-links" style="margin-bottom:0.5rem;"><a href="notpaid.html" class="nav-link">Not Paid</a><a href="payment-history.html" class="nav-link">History</a></div>
+      <div class="nav-links" style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+        <a href="notpaid.html" class="nav-link" style="flex:1; text-align:center; background:#f1f5f9; padding:0.4rem; border-radius:30px; text-decoration:none; font-size:0.8rem;">Not Paid</a>
+        <a href="payment-history.html" class="nav-link" style="flex:1; text-align:center; background:#f1f5f9; padding:0.4rem; border-radius:30px; text-decoration:none; font-size:0.8rem;">History</a>
+      </div>
       <div class="card">
-        <div class="card-header"><i class="fas fa-chart-line"></i><h3>Stats</h3></div>
+        <div class="card-header"><i class="fas fa-chart-line"></i><h3>Quick Stats</h3></div>
         <div class="card-body">
-          <div class="stat-item"><span class="stat-label">Total Students</span><span class="stat-value" id="statTotal">—</span></div>
-          <div class="stat-item"><span class="stat-label">Paid (Regular)</span><span class="stat-value success" id="statPaid">—</span></div>
-          <div class="stat-item"><span class="stat-label">Not Paid</span><span class="stat-value danger" id="statNotPaid">—</span></div>
-          <div class="stat-item"><span class="stat-label">Collected</span><span class="stat-value success" id="statCollected">—</span></div>
+          <div class="stat-item"><span>Total Students</span><span id="statTotal">—</span></div>
+          <div class="stat-item"><span>Paid (Regular)</span><span id="statPaid" style="color:#2e7d32;">—</span></div>
+          <div class="stat-item"><span>Not Paid</span><span id="statNotPaid" style="color:#c62828;">—</span></div>
+          <div class="stat-item"><span>Total Collected</span><span id="statCollected">—</span></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><i class="fas fa-cloud-upload-alt"></i><h3>Cloud</h3></div>
+        <div class="card-header"><i class="fas fa-cloud-upload-alt"></i><h3>Cloud Storage</h3></div>
         <div class="card-body">
-          <div class="upload-area" id="uploadArea"><div class="upload-icon"><i class="fas fa-file-excel"></i></div><p id="uploadAreaText">Upload students.xlsx</p><input type="file" id="cloudUploadInput" accept=".xlsx,.xls"></div>
-          <button class="btn-secondary" id="uploadToCloudBtn" style="margin-top:0.3rem;"><i class="fas fa-upload"></i> Upload</button>
-          <button class="btn-secondary" id="syncBtn" style="margin-top:0.3rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+          <div class="upload-area" id="uploadArea"><i class="fas fa-file-excel"></i> <span id="uploadAreaText">students.xlsx</span><input type="file" id="cloudUploadInput" accept=".xlsx,.xls" style="display:none;"></div>
+          <button class="btn-secondary" id="uploadToCloudBtn"><i class="fas fa-upload"></i> Upload</button>
+          <button class="btn-secondary" id="syncBtn" style="margin-top:0.3rem;"><i class="fas fa-sync-alt"></i> Refresh Stats</button>
           <div class="cors-alert" id="corsAlert">
-            <div class="local-drop" onclick="document.getElementById('localFileInput').click()">📂 Load local students.xlsx<input type="file" id="localFileInput" accept=".xlsx,.xls"></div>
+            <div class="local-drop" onclick="document.getElementById('localFileInput').click()">📂 Load local students.xlsx<input type="file" id="localFileInput" accept=".xlsx,.xls" style="display:none;"></div>
           </div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><i class="fas fa-database"></i><h3>Backup</h3></div>
+        <div class="card-header"><i class="fas fa-database"></i><h3>Backup & Restore</h3></div>
         <div class="card-body">
           <button class="btn-secondary" id="exportBackupBtn"><i class="fas fa-download"></i> Export JSON</button>
-          <button class="btn-secondary" id="importBackupBtn"><i class="fas fa-upload"></i> Import JSON</button>
+          <button class="btn-secondary" id="importBackupBtn" style="margin-top:0.3rem;"><i class="fas fa-upload"></i> Import JSON</button>
           <input type="file" id="restoreInput" accept=".json" style="display:none;">
         </div>
       </div>
       <button id="logoutBtn" class="btn-secondary danger" style="background:#fef2f2;"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
   </div>
-  <footer class="main-footer"><p>Karthik Bonagiri | Master Minds | +91 90148 95357</p></footer>
+  <footer><p>Developed by Karthik Bonagiri | Master Minds – The Learning Hub | +91 90148 95357</p></footer>
 </div>
-<div id="addStudentModal" class="modal"><div class="modal-content"><h3>Add Student</h3><input type="text" id="newHallTicket" placeholder="Hall Ticket *"><input type="text" id="newName" placeholder="Name *"><input type="text" id="newFatherName" placeholder="Father Name"><input type="text" id="newGroup" placeholder="Group"><input type="text" id="newResult" placeholder="Result"><div class="modal-buttons"><button class="btn-secondary" id="cancelAddBtn">Cancel</button><button class="btn-primary" id="confirmAddBtn">Save</button></div></div></div>
+<div id="addStudentModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:10000;">
+  <div class="modal-content" style="background:white; padding:1.5rem; border-radius:24px; max-width:400px; width:90%;">
+    <h3>Add New Student</h3>
+    <input type="text" id="newHallTicket" placeholder="Hall Ticket *" style="width:100%; margin:0.5rem 0; padding:0.5rem;">
+    <input type="text" id="newName" placeholder="Name *" style="width:100%; margin:0.5rem 0; padding:0.5rem;">
+    <input type="text" id="newFatherName" placeholder="Father Name" style="width:100%; margin:0.5rem 0; padding:0.5rem;">
+    <input type="text" id="newGroup" placeholder="Group" style="width:100%; margin:0.5rem 0; padding:0.5rem;">
+    <input type="text" id="newResult" placeholder="Result" style="width:100%; margin:0.5rem 0; padding:0.5rem;">
+    <div class="modal-buttons" style="display:flex; gap:0.5rem; margin-top:1rem;">
+      <button class="btn-secondary" id="cancelAddBtn">Cancel</button>
+      <button class="btn-primary" id="confirmAddBtn">Save</button>
+    </div>
+  </div>
+</div>
 <script>
+// Firebase Auth & App logic (same as before, but with layout changes)
 const auth = firebase.auth();
 const loadingScreen = document.getElementById('loadingScreen');
 const loginOverlay = document.getElementById('loginOverlay');
@@ -247,7 +382,6 @@ loginBtn.addEventListener('click', async () => {
     loginError.innerText = err.message;
   }
 });
-
 if (logoutBtn) logoutBtn.addEventListener('click', async () => { await auth.signOut(); window.location.href = 'index.html'; });
 
 let students = [], selectedStudent = null, paidSet = new Set();
@@ -291,19 +425,15 @@ function updateTotal() {
 }
 regularEl.addEventListener('input', updateTotal);
 backlogEl.addEventListener('input', updateTotal);
-
-if (modeEl) {
-  modeEl.addEventListener('change', () => {
-    utrGroup.style.display = modeEl.value === 'Online' ? 'flex' : 'none';
-    if (modeEl.value !== 'Online') utrEl.value = '';
-  });
-}
+if (modeEl) modeEl.addEventListener('change', () => {
+  utrGroup.style.display = modeEl.value === 'Online' ? 'block' : 'none';
+  if (modeEl.value !== 'Online') utrEl.value = '';
+});
 
 async function loadStats() {
   try {
     const snap = await paymentsCollection.get();
-    const payments = [];
-    snap.forEach(doc => payments.push(doc.data()));
+    const payments = []; snap.forEach(doc => payments.push(doc.data()));
     const regularPaidSet = new Set();
     payments.forEach(p => { if (parseFloat(p.regularFee) > 0) regularPaidSet.add(String(p.hall)); });
     paidSet = regularPaidSet;
@@ -311,20 +441,17 @@ async function loadStats() {
     document.getElementById('statPaid').textContent = regularPaidSet.size;
     document.getElementById('statNotPaid').textContent = Math.max(0, students.length - regularPaidSet.size);
     document.getElementById('statCollected').textContent = formatINR(totalCollected);
-  } catch { }
+  } catch {}
 }
-
 async function onStudentsLoaded() {
   document.getElementById('statTotal').textContent = students.length;
-  cardEl.innerHTML = '<div class="placeholder-text">✅ Data ready. Search above.</div>';
+  cardEl.innerHTML = '<div class="placeholder-text">Select a student to see details</div>';
   await loadStats();
 }
-
 function setCardError(msg, showCors=false) {
   cardEl.innerHTML = `<div class="placeholder-text">⚠️ ${escapeHtml(msg)}</div>`;
   if(showCors) corsAlert.style.display = 'block';
 }
-
 async function initStudents() {
   if(!mainApp || mainApp.style.display !== 'block') return;
   cardEl.innerHTML = '<div class="placeholder-text">Loading students...</div>';
@@ -339,7 +466,6 @@ async function initStudents() {
     document.getElementById('statTotal').textContent = '0';
   }
 }
-
 async function saveStudentsToCloud() {
   if(!students.length) return;
   const ws = XLSX.utils.json_to_sheet(students);
@@ -350,7 +476,6 @@ async function saveStudentsToCloud() {
   const file = new File([blob], 'students.xlsx');
   await studentsExcelRef.put(file);
 }
-
 addStudentBtn.addEventListener('click',()=>modal.style.display='flex');
 cancelAddBtn.addEventListener('click',()=>{ modal.style.display='none'; newHallTicket.value=''; newName.value=''; newFatherName.value=''; newGroup.value=''; newResult.value=''; });
 confirmAddBtn.addEventListener('click',async()=>{
@@ -366,11 +491,10 @@ confirmAddBtn.addEventListener('click',async()=>{
     newHallTicket.value=''; newName.value=''; newFatherName.value=''; newGroup.value=''; newResult.value='';
     document.getElementById('statTotal').textContent=students.length;
     await loadStats();
-    if(searchEl.value.trim()==='') cardEl.innerHTML='<div class="placeholder-text">Search to find student</div>';
+    if(searchEl.value.trim()==='') cardEl.innerHTML='<div class="placeholder-text">Select a student</div>';
     else searchEl.dispatchEvent(new Event('input'));
   } catch(err){ showToast('Save failed: '+err.message,'error'); students.pop(); }
 });
-
 if(localInput) localInput.addEventListener('change',async()=>{
   if(!localInput.files.length) return;
   const file=localInput.files[0];
@@ -384,27 +508,23 @@ if(localInput) localInput.addEventListener('change',async()=>{
   } catch(err){ showToast('Error: '+err.message,'error'); }
   localInput.value='';
 });
-
 searchEl.addEventListener('input',function(){
   const val=this.value.trim().toLowerCase();
   clearBtn.style.display=val?'flex':'none';
-  if(!val){ cardEl.innerHTML='<div class="placeholder-text">Type to search</div>'; selectedStudent=null; return; }
+  if(!val){ cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; return; }
   const found=students.find(s=>String(s['Hall Ticket']).toLowerCase()===val||(s['Name']&&s['Name'].toLowerCase().includes(val)));
   if(found){
     selectedStudent=found;
     const isPaid=paidSet.has(String(found['Hall Ticket']));
     cardEl.innerHTML=`<div class="student-info"><div class="student-name"><i class="fas fa-user-graduate"></i> ${escapeHtml(found['Name'])} <span class="badge ${isPaid?'badge-paid':'badge-unpaid'}">${isPaid?'Paid':'Not Paid'}</span></div><div><i class="fas fa-id-card"></i> HT: ${escapeHtml(found['Hall Ticket'])}</div><div><i class="fas fa-user"></i> Father: ${escapeHtml(found['Father Name'])}</div><div><i class="fas fa-layer-group"></i> Group: ${escapeHtml(found['Group'])}</div><div><i class="fas fa-chart-bar"></i> Result: ${escapeHtml(found['Result'])}</div></div>`;
-    // Auto-focus on regular fee input for faster entry
     regularEl.focus();
   } else {
-    cardEl.innerHTML='<div class="placeholder-text">Not found</div>';
+    cardEl.innerHTML='<div class="placeholder-text">Student not found</div>';
     selectedStudent=null;
   }
 });
-clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text">Type to search</div>'; selectedStudent=null; });
-
+clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; });
 async function isUtrDuplicate(utr){ if(!utr) return false; const snap=await paymentsCollection.where('utr','==',utr).get(); return !snap.empty; }
-
 saveBtn.addEventListener('click',async()=>{
   if(!selectedStudent){ showToast('Select a student first','warning'); return; }
   const regular=regularEl.value.trim();
@@ -431,16 +551,12 @@ saveBtn.addEventListener('click',async()=>{
   } catch(err){ showToast('Save failed: '+err.message,'error'); }
   finally{ saveBtn.disabled=false; saveBtn.innerHTML='<i class="fas fa-save"></i> Save Payment'; }
 });
-
 uploadArea.addEventListener('click',()=>uploadInput.click());
-uploadArea.addEventListener('dragover',e=>{ e.preventDefault(); uploadArea.classList.add('drag-over'); });
-uploadArea.addEventListener('dragleave',()=>uploadArea.classList.remove('drag-over'));
-uploadArea.addEventListener('drop',e=>{ e.preventDefault(); uploadArea.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f && (f.name.endsWith('.xlsx')||f.name.endsWith('.xls'))){ const dt=new DataTransfer(); dt.items.add(f); uploadInput.files=dt.files; document.getElementById('uploadAreaText').innerHTML=`<strong>${escapeHtml(f.name)}</strong> ready`; } else showToast('Drop Excel file','warning'); });
-uploadInput.addEventListener('change',()=>{ if(uploadInput.files[0]) document.getElementById('uploadAreaText').innerHTML=`<strong>${escapeHtml(uploadInput.files[0].name)}</strong> ready`; });
+uploadInput.addEventListener('change',()=>{ if(uploadInput.files[0]) document.getElementById('uploadAreaText').innerHTML = uploadInput.files[0].name; });
 uploadBtn.addEventListener('click',async()=>{
   if(!uploadInput.files.length){ showToast('Select file','warning'); return; }
   uploadBtn.disabled=true; uploadBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
-  try{ await studentsExcelRef.put(uploadInput.files[0]); showToast('Uploaded!','success'); uploadInput.value=''; document.getElementById('uploadAreaText').innerHTML='Upload students.xlsx'; await initStudents(); }
+  try{ await studentsExcelRef.put(uploadInput.files[0]); showToast('Uploaded!','success'); uploadInput.value=''; document.getElementById('uploadAreaText').innerHTML='students.xlsx'; await initStudents(); }
   catch(err){ showToast('Upload failed: '+err.message,'error'); }
   finally{ uploadBtn.disabled=false; uploadBtn.innerHTML='Upload'; }
 });
