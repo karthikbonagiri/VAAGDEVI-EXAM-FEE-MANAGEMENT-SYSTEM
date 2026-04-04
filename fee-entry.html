@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Master Minds | Exam Fee Manager</title>
+  <title>Master Minds | Fee Entry</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -34,6 +34,7 @@
     .cors-alert { background:#fff8e1; border:1.5px solid #fde68a; border-radius:12px; padding:1rem 1.1rem; margin-top:.9rem; display:none; }
     .cors-alert h4 { font-family:'Sora',sans-serif; font-size:.9rem; color:#92400e; margin-bottom:.4rem; display:flex; align-items:center; gap:.4rem; }
     .cors-alert .local-drop { border:2px dashed #fcd34d; border-radius:10px; padding:.9rem; text-align:center; cursor:pointer; background:#fffbeb; }
+    .cors-alert .local-drop:hover { border-color:#f59e0b; background:#fef3c7; }
     .cors-fix-steps { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:.8rem 1rem; margin-top:.7rem; font-size:.78rem; color:#166534; }
     #loginOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
     .login-card { background:white; padding:2rem; border-radius:28px; max-width:360px; text-align:center; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3); }
@@ -43,6 +44,17 @@
     .modal-content { background:white; padding:1.8rem; border-radius:24px; max-width:450px; width:90%; }
     @media (max-width:960px) { .main-grid { display:flex; flex-direction:column; } .col-right { order:-1; } }
     .header-admin-link { background:rgba(255,255,255,0.2); backdrop-filter:blur(4px); padding:0.45rem 1.1rem; border-radius:40px; font-size:0.8rem; font-weight:600; color:#ffeaaf; text-decoration:none; margin-left:0.5rem; }
+    /* Auto‑total display */
+    .total-amount {
+      background: #f0f6fa;
+      border-radius: 1rem;
+      padding: 0.6rem 1rem;
+      margin: 0.5rem 0;
+      font-weight: 700;
+      text-align: center;
+      font-size: 1.2rem;
+      color: #1e4663;
+    }
   </style>
 </head>
 <body>
@@ -82,8 +94,10 @@
       <div class="card">
         <div class="card-header"><i class="fas fa-user-graduate"></i><h3>Student Lookup</h3></div>
         <div class="card-body">
-          <div class="search-wrapper"><i class="fas fa-search search-icon"></i><input type="text" id="search" placeholder="Search by Hall Ticket or Name"><button class="clear-btn" id="clearSearch"><i class="fas fa-times"></i></button></div>
-          <div id="studentCard" class="student-info-card"><div class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Loading student data…</div></div>
+          <div class="search-wrapper"><i class="fas fa-search search-icon"></i><input type="text" id="search" placeholder="Search by Hall Ticket or Name" autocomplete="off"><button class="clear-btn" id="clearSearch"><i class="fas fa-times"></i></button></div>
+          <div id="studentCard" class="student-info-card">
+            <div class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Loading student data…</div>
+          </div>
           <button id="addStudentBtn" class="btn-secondary" style="margin-top:1rem; background:#e8f5e9;"><i class="fas fa-user-plus"></i> Add New Student</button>
         </div>
       </div>
@@ -91,26 +105,49 @@
         <div class="card-header"><i class="fas fa-rupee-sign"></i><h3>Record Payment</h3></div>
         <div class="card-body">
           <div class="form-row">
-            <div class="input-group"><label><i class="fas fa-receipt"></i> Regular Fee (₹)</label><input type="number" id="regular" placeholder="0"></div>
-            <div class="input-group"><label><i class="fas fa-clock"></i> Backlog Fee (₹)</label><input type="number" id="backlog" placeholder="0"></div>
+            <div class="input-group">
+              <label><i class="fas fa-receipt"></i> Regular Fee (₹)</label>
+              <input type="number" id="regular" placeholder="0" step="1" min="0" value="0">
+            </div>
+            <div class="input-group">
+              <label><i class="fas fa-clock"></i> Backlog Fee (₹)</label>
+              <input type="number" id="backlog" placeholder="0" step="1" min="0" value="0">
+            </div>
+          </div>
+          <div id="totalDisplay" class="total-amount">
+            Total Amount: ₹0
           </div>
           <div class="form-row">
-            <div class="input-group"><label><i class="fas fa-credit-card"></i> Payment Mode</label><select id="mode"><option value="Cash">💵 Cash</option><option value="Online">📱 Online</option></select></div>
-            <div class="input-group" id="utrGroup" style="display:none;"><label><i class="fas fa-qrcode"></i> UTR / Transaction ID</label><input type="text" id="utr" placeholder="e.g. 123456789012"></div>
+            <div class="input-group">
+              <label><i class="fas fa-credit-card"></i> Payment Mode</label>
+              <select id="mode">
+                <option value="Cash">💵 Cash</option>
+                <option value="Online">📱 Online</option>
+              </select>
+            </div>
+            <div class="input-group" id="utrGroup" style="display:none;">
+              <label><i class="fas fa-qrcode"></i> UTR / Transaction ID</label>
+              <input type="text" id="utr" placeholder="e.g. 123456789012">
+            </div>
           </div>
-          <div class="form-row"><div class="input-group"><label><i class="fas fa-calendar-alt"></i> Payment Date</label><input type="date" id="date"></div></div>
+          <div class="form-row">
+            <div class="input-group">
+              <label><i class="fas fa-calendar-alt"></i> Payment Date</label>
+              <input type="date" id="date">
+            </div>
+          </div>
           <button class="btn-primary" id="savePaymentBtn"><i class="fas fa-save"></i> Save Payment</button>
         </div>
       </div>
     </div>
     <div class="col-right">
-      <div class="nav-links"><a href="notpaid.html" class="nav-link"><i class="fas fa-user-times"></i> Not Paid</a><a href="payment-history.html" class="nav-link"><i class="fas fa-history"></i> Payment History</a></div>
+      <div class="nav-links"><a href="notpaid.html" class="nav-link"><i class="fas fa-user-times"></i> Not Paid (Regular)</a><a href="payment-history.html" class="nav-link"><i class="fas fa-history"></i> Payment History</a></div>
       <div class="card">
         <div class="card-header"><i class="fas fa-chart-line"></i><h3>Quick Stats</h3></div>
         <div class="card-body">
           <div class="stat-item"><span class="stat-label"><i class="fas fa-users"></i> Total Students</span><span class="stat-value" id="statTotal">—</span></div>
-          <div class="stat-item"><span class="stat-label"><i class="fas fa-check-circle"></i> Paid</span><span class="stat-value success" id="statPaid">—</span></div>
-          <div class="stat-item"><span class="stat-label"><i class="fas fa-times-circle"></i> Not Paid</span><span class="stat-value danger" id="statNotPaid">—</span></div>
+          <div class="stat-item"><span class="stat-label"><i class="fas fa-check-circle"></i> Paid (Regular)</span><span class="stat-value success" id="statPaid">—</span></div>
+          <div class="stat-item"><span class="stat-label"><i class="fas fa-times-circle"></i> Not Paid (Regular)</span><span class="stat-value danger" id="statNotPaid">—</span></div>
           <div class="stat-item"><span class="stat-label"><i class="fas fa-rupee-sign"></i> Total Collected</span><span class="stat-value success" id="statCollected">—</span></div>
           <div class="stat-item"><span class="stat-label"><i class="fas fa-cloud"></i> Cloud</span><span class="stat-value success" id="statCloud">● Live</span></div>
         </div>
@@ -181,46 +218,100 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
-// ✅ LOGOUT: redirect to index.html (welcome page)
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', async () => {
-    await auth.signOut();
-    window.location.href = 'index.html';
+if (logoutBtn) logoutBtn.addEventListener('click', async () => { await auth.signOut(); window.location.href = 'index.html'; });
+
+// ─────────────────────────────────────────────
+// App logic
+// ─────────────────────────────────────────────
+let students = [], selectedStudent = null, paidSet = new Set();
+
+const searchEl = document.getElementById('search');
+const clearBtn = document.getElementById('clearSearch');
+const cardEl = document.getElementById('studentCard');
+const saveBtn = document.getElementById('savePaymentBtn');
+const regularEl = document.getElementById('regular');
+const backlogEl = document.getElementById('backlog');
+const modeEl = document.getElementById('mode');
+const utrEl = document.getElementById('utr');
+const utrGroup = document.getElementById('utrGroup');
+const dateEl = document.getElementById('date');
+const totalDisplay = document.getElementById('totalDisplay');
+const uploadArea = document.getElementById('uploadArea');
+const uploadInput = document.getElementById('cloudUploadInput');
+const uploadBtn = document.getElementById('uploadToCloudBtn');
+const syncBtn = document.getElementById('syncBtn');
+const exportBtn = document.getElementById('exportBackupBtn');
+const importBtn = document.getElementById('importBackupBtn');
+const restoreInput = document.getElementById('restoreInput');
+const corsAlert = document.getElementById('corsAlert');
+const localInput = document.getElementById('localFileInput');
+const addStudentBtn = document.getElementById('addStudentBtn');
+const modal = document.getElementById('addStudentModal');
+const cancelAddBtn = document.getElementById('cancelAddBtn');
+const confirmAddBtn = document.getElementById('confirmAddBtn');
+const newHallTicket = document.getElementById('newHallTicket');
+const newName = document.getElementById('newName');
+const newFatherName = document.getElementById('newFatherName');
+const newGroup = document.getElementById('newGroup');
+const newResult = document.getElementById('newResult');
+
+// Auto‑calculate total
+function updateTotal() {
+  const regular = parseFloat(regularEl.value) || 0;
+  const backlog = parseFloat(backlogEl.value) || 0;
+  const total = regular + backlog;
+  totalDisplay.innerHTML = `Total Amount: ₹${total.toLocaleString('en-IN')}`;
+  if (total > 0) totalDisplay.style.background = "#e8f5e9";
+  else totalDisplay.style.background = "#f0f6fa";
+}
+regularEl.addEventListener('input', updateTotal);
+backlogEl.addEventListener('input', updateTotal);
+
+if (modeEl) {
+  modeEl.addEventListener('change', () => {
+    utrGroup.style.display = modeEl.value === 'Online' ? 'block' : 'none';
+    if (modeEl.value !== 'Online') utrEl.value = '';
   });
 }
-
-let students = [], selectedStudent = null, paidSet = new Set();
-const searchEl = document.getElementById('search'), clearBtn = document.getElementById('clearSearch'), cardEl = document.getElementById('studentCard');
-const saveBtn = document.getElementById('savePaymentBtn'), regularEl = document.getElementById('regular'), backlogEl = document.getElementById('backlog');
-const modeEl = document.getElementById('mode'), utrEl = document.getElementById('utr'), utrGroup = document.getElementById('utrGroup'), dateEl = document.getElementById('date');
-const uploadArea = document.getElementById('uploadArea'), uploadInput = document.getElementById('cloudUploadInput'), uploadBtn = document.getElementById('uploadToCloudBtn');
-const syncBtn = document.getElementById('syncBtn'), exportBtn = document.getElementById('exportBackupBtn'), importBtn = document.getElementById('importBackupBtn'), restoreInput = document.getElementById('restoreInput');
-const corsAlert = document.getElementById('corsAlert'), localInput = document.getElementById('localFileInput');
-const addStudentBtn = document.getElementById('addStudentBtn'), modal = document.getElementById('addStudentModal'), cancelAddBtn = document.getElementById('cancelAddBtn'), confirmAddBtn = document.getElementById('confirmAddBtn');
-const newHallTicket = document.getElementById('newHallTicket'), newName = document.getElementById('newName'), newFatherName = document.getElementById('newFatherName'), newGroup = document.getElementById('newGroup'), newResult = document.getElementById('newResult');
-
-if (modeEl) modeEl.addEventListener('change', () => { utrGroup.style.display = modeEl.value === 'Online' ? 'block' : 'none'; if (modeEl.value !== 'Online') utrEl.value = ''; });
 
 async function loadStats() {
   try {
     const snap = await paymentsCollection.get();
-    const payments = []; snap.forEach(doc => payments.push(doc.data()));
-    paidSet = new Set(payments.map(p => String(p.hall)));
-    const total = payments.reduce((s,p) => s + (parseFloat(p.regularFee)||0) + (parseFloat(p.backlogFee)||0), 0);
-    document.getElementById('statPaid').textContent = paidSet.size;
-    document.getElementById('statNotPaid').textContent = Math.max(0, students.length - paidSet.size);
-    document.getElementById('statCollected').textContent = formatINR(total);
+    const payments = [];
+    snap.forEach(doc => payments.push(doc.data()));
+    // Regular fee paid set (any payment with regularFee > 0)
+    const regularPaidSet = new Set();
+    payments.forEach(p => {
+      if (parseFloat(p.regularFee) > 0) regularPaidSet.add(String(p.hall));
+    });
+    paidSet = regularPaidSet;
+    const totalCollected = payments.reduce((s,p) => s + (parseFloat(p.regularFee)||0) + (parseFloat(p.backlogFee)||0), 0);
+    document.getElementById('statPaid').textContent = regularPaidSet.size;
+    document.getElementById('statNotPaid').textContent = Math.max(0, students.length - regularPaidSet.size);
+    document.getElementById('statCollected').textContent = formatINR(totalCollected);
     document.getElementById('statCloud').textContent = '● Live';
   } catch { document.getElementById('statCloud').textContent = '✗ Error'; }
 }
-async function onStudentsLoaded() { document.getElementById('statTotal').textContent = students.length; cardEl.innerHTML = '<div class="placeholder-text"><i class="fas fa-check-circle"></i> Student data loaded.</div>'; await loadStats(); }
-function setCardError(msg, showCors=false) { cardEl.innerHTML = `<div class="placeholder-text"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(msg)}</div>`; if(showCors) corsAlert.style.display='block'; }
+
+async function onStudentsLoaded() {
+  document.getElementById('statTotal').textContent = students.length;
+  cardEl.innerHTML = '<div class="placeholder-text"><i class="fas fa-check-circle"></i> Student data loaded. Search above.</div>';
+  await loadStats();
+}
+
+function setCardError(msg, showCors=false) {
+  cardEl.innerHTML = `<div class="placeholder-text"><i class="fas fa-exclamation-triangle"></i> ${escapeHtml(msg)}</div>`;
+  if(showCors) corsAlert.style.display='block';
+}
+
 async function initStudents() {
   if(!mainApp || mainApp.style.display !== 'block') return;
   cardEl.innerHTML = '<div class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Loading student data…</div>';
   corsAlert.style.display='none';
-  try { students = await loadStudentsFromCloud(); await onStudentsLoaded(); }
-  catch(err) {
+  try {
+    students = await loadStudentsFromCloud();
+    await onStudentsLoaded();
+  } catch(err) {
     switch(err.type) {
       case 'NOT_FOUND': setCardError('students.xlsx not found. Upload using Cloud Storage.'); break;
       case 'CORS_ERROR': setCardError('Cloud download blocked (CORS). Use local file option.', true); document.getElementById('loadModeBadge').innerHTML='<i class="fas fa-laptop"></i> Local Mode'; break;
@@ -229,6 +320,7 @@ async function initStudents() {
     document.getElementById('statTotal').textContent='0';
   }
 }
+
 async function saveStudentsToCloud() {
   if(!students.length) return;
   const ws = XLSX.utils.json_to_sheet(students);
@@ -238,6 +330,7 @@ async function saveStudentsToCloud() {
   const file = new File([blob], 'students.xlsx');
   await studentsExcelRef.put(file);
 }
+
 addStudentBtn.addEventListener('click',()=>modal.style.display='flex');
 cancelAddBtn.addEventListener('click',()=>{ modal.style.display='none'; newHallTicket.value=''; newName.value=''; newFatherName.value=''; newGroup.value=''; newResult.value=''; });
 confirmAddBtn.addEventListener('click',async()=>{
@@ -257,6 +350,7 @@ confirmAddBtn.addEventListener('click',async()=>{
     else searchEl.dispatchEvent(new Event('input'));
   } catch(err){ showToast('Failed to save to cloud: '+err.message,'error'); students.pop(); }
 });
+
 if(localInput) localInput.addEventListener('change',async()=>{
   if(!localInput.files.length) return;
   const file=localInput.files[0];
@@ -270,6 +364,7 @@ if(localInput) localInput.addEventListener('change',async()=>{
   } catch(err){ showToast('Error: '+err.message,'error'); }
   localInput.value='';
 });
+
 searchEl.addEventListener('input',function(){
   const val=this.value.trim().toLowerCase();
   clearBtn.style.display=val?'flex':'none';
@@ -278,33 +373,54 @@ searchEl.addEventListener('input',function(){
   if(found){
     selectedStudent=found;
     const isPaid=paidSet.has(String(found['Hall Ticket']));
-    cardEl.innerHTML=`<div class="student-info"><div class="student-name"><i class="fas fa-user-graduate"></i> ${escapeHtml(found['Name'])}<span class="badge ${isPaid?'badge-paid':'badge-unpaid'}">${isPaid?'✅ Paid':'⚠ Not Paid'}</span></div><div><i class="fas fa-id-card"></i> Hall Ticket: ${escapeHtml(found['Hall Ticket'])}</div><div><i class="fas fa-user"></i> Father: ${escapeHtml(found['Father Name'])}</div><div><i class="fas fa-layer-group"></i> Group: ${escapeHtml(found['Group'])}</div><div><i class="fas fa-chart-bar"></i> Result: ${escapeHtml(found['Result'])}</div></div>`;
-  } else { cardEl.innerHTML='<div class="placeholder-text"><i class="fas fa-times-circle"></i> Student not found</div>'; selectedStudent=null; }
+    cardEl.innerHTML=`
+      <div class="student-info">
+        <div class="student-name">
+          <i class="fas fa-user-graduate"></i> ${escapeHtml(found['Name'])}
+          <span class="badge ${isPaid?'badge-paid':'badge-unpaid'}">${isPaid?'✅ Paid':'⚠ Not Paid'}</span>
+        </div>
+        <div><i class="fas fa-id-card"></i> Hall Ticket: ${escapeHtml(found['Hall Ticket'])}</div>
+        <div><i class="fas fa-user"></i> Father: ${escapeHtml(found['Father Name'])}</div>
+        <div><i class="fas fa-layer-group"></i> Group: ${escapeHtml(found['Group'])}</div>
+        <div><i class="fas fa-chart-bar"></i> Result: ${escapeHtml(found['Result'])}</div>
+      </div>`;
+  } else {
+    cardEl.innerHTML='<div class="placeholder-text"><i class="fas fa-times-circle"></i> Student not found</div>';
+    selectedStudent=null;
+  }
 });
+
 clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text"><i class="fas fa-search"></i> Type to find a student</div>'; selectedStudent=null; });
+
 async function isUtrDuplicate(utr){ if(!utr) return false; const snap=await paymentsCollection.where('utr','==',utr).get(); return !snap.empty; }
+
 saveBtn.addEventListener('click',async()=>{
   if(!selectedStudent){ showToast('Search and select a student first.','warning'); return; }
-  const regular=regularEl.value.trim(), backlog=backlogEl.value.trim(), mode=modeEl.value;
-  let utr=utrEl.value.trim(), date=dateEl.value;
+  const regular=regularEl.value.trim();
+  const backlog=backlogEl.value.trim();
+  const mode=modeEl.value;
+  let utr=utrEl.value.trim();
+  let date=dateEl.value;
   if(!regular && !backlog){ showToast('Enter at least one fee amount.','warning'); return; }
   if(mode==='Online' && !utr){ showToast('UTR required for online payment.','warning'); return; }
   if(mode!=='Online') utr='';
   if(!date) date=new Date().toISOString().split('T')[0];
   if(mode==='Online' && utr && await isUtrDuplicate(utr)){ showToast('UTR already used.','error'); return; }
   const ht=String(selectedStudent['Hall Ticket']);
-  if(paidSet.has(ht) && !confirm(`⚠️ "${selectedStudent['Name']}" already has a payment. Record another?`)) return;
+  if(paidSet.has(ht) && !confirm(`⚠️ "${selectedStudent['Name']}" already has a regular fee payment. Record an additional payment?`)) return;
   saveBtn.disabled=true; saveBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…';
   try{
     await paymentsCollection.add({ hall:ht, name:selectedStudent['Name'], fatherName:selectedStudent['Father Name']||'', group:selectedStudent['Group']||'', regularFee:regular||'0', backlogFee:backlog||'0', mode, utr, date, timestamp:Date.now() });
     paidSet.add(ht);
     showToast(`Payment saved for ${selectedStudent['Name']}`,'success');
-    regularEl.value=''; backlogEl.value=''; utrEl.value=''; dateEl.value=new Date().toISOString().split('T')[0];
+    regularEl.value='0'; backlogEl.value='0'; utrEl.value=''; dateEl.value=new Date().toISOString().split('T')[0];
+    updateTotal();
     searchEl.dispatchEvent(new Event('input'));
     await loadStats();
   } catch(err){ showToast('Save failed: '+err.message,'error'); }
   finally{ saveBtn.disabled=false; saveBtn.innerHTML='<i class="fas fa-save"></i> Save Payment'; }
 });
+
 uploadArea.addEventListener('click',()=>uploadInput.click());
 uploadArea.addEventListener('dragover',e=>{ e.preventDefault(); uploadArea.classList.add('drag-over'); });
 uploadArea.addEventListener('dragleave',()=>uploadArea.classList.remove('drag-over'));
@@ -352,6 +468,7 @@ restoreInput.addEventListener('change',async e=>{
   restoreInput.value='';
 });
 dateEl.value=new Date().toISOString().split('T')[0];
+updateTotal();
 </script>
 </body>
 </html>
