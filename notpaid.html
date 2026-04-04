@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Master Minds | Not Paid Students</title>
+  <title>Master Minds | Regular Fee Not Paid</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,7 +14,6 @@
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
-    /* Mobile responsive overrides for notpaid.html */
     .local-fallback {
       background: #fff8e1;
       border: 1.5px solid #fde68a;
@@ -40,71 +39,22 @@
       cursor: pointer;
       background: #fffbeb;
     }
-    .local-pick:hover {
-      border-color: #f59e0b;
-    }
-    .local-pick input {
-      display: none;
-    }
-    .local-pick p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #92400e;
-      font-weight: 600;
-    }
-
-    /* Responsive adjustments */
+    .local-pick input { display: none; }
+    .local-pick p { margin: 0; font-size: 0.85rem; color: #92400e; font-weight: 600; }
     @media (max-width: 700px) {
-      .app-container {
-        margin: 0.5rem auto !important;
-      }
-      .main-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-        padding: 0.8rem;
-      }
-      .logo-area {
-        justify-content: center;
-      }
-      .page-content {
-        padding: 1rem;
-      }
-      .summary-strip {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-      }
-      .summary-chip {
-        justify-content: center;
-        font-size: 0.8rem;
-      }
-      .filter-bar {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .filter-bar .input-group {
-        width: 100%;
-      }
-      .notpaid-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        padding: 0.8rem;
-      }
-      .badge-unpaid {
-        align-self: flex-start;
-      }
-      .export-row {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .export-row button {
-        width: 100%;
-      }
-      .notpaid-card-meta {
-        font-size: 0.7rem;
-      }
+      .app-container { margin: 0.5rem auto !important; }
+      .main-header { flex-direction: column; text-align: center; gap: 0.5rem; padding: 0.8rem; }
+      .logo-area { justify-content: center; }
+      .page-content { padding: 1rem; }
+      .summary-strip { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+      .summary-chip { justify-content: center; font-size: 0.8rem; }
+      .filter-bar { flex-direction: column; gap: 0.5rem; }
+      .filter-bar .input-group { width: 100%; }
+      .notpaid-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.8rem; }
+      .badge-unpaid { align-self: flex-start; }
+      .export-row { flex-direction: column; gap: 0.5rem; }
+      .export-row button { width: 100%; }
+      .notpaid-card-meta { font-size: 0.7rem; }
     }
   </style>
 </head>
@@ -120,7 +70,7 @@
   </header>
 
   <div class="page-content">
-    <div class="page-title"><i class="fas fa-user-times" style="color:var(--gold)"></i> Not Paid Students</div>
+    <div class="page-title"><i class="fas fa-rupee-sign" style="color:var(--gold)"></i> Regular Fee – Not Paid</div>
 
     <!-- CORS fallback -->
     <div class="local-fallback" id="localFallback">
@@ -135,11 +85,11 @@
 
     <!-- Summary chips -->
     <div class="summary-strip" id="summaryStrip" style="display:none;">
-      <div class="summary-chip"><i class="fas fa-users"></i> Total: <strong id="chipTotal">0</strong></div>
+      <div class="summary-chip"><i class="fas fa-users"></i> Total Students: <strong id="chipTotal">0</strong></div>
       <div class="summary-chip" style="background:#fef2f2;border-color:#fca5a5;color:var(--red);">
-        <i class="fas fa-times-circle" style="color:var(--red)"></i> Not Paid: <strong id="chipNotPaid">0</strong>
+        <i class="fas fa-times-circle" style="color:var(--red)"></i> Regular Fee Not Paid: <strong id="chipNotPaid">0</strong>
       </div>
-      <div class="summary-chip green"><i class="fas fa-check-circle"></i> Paid: <strong id="chipPaid">0</strong></div>
+      <div class="summary-chip green"><i class="fas fa-check-circle"></i> Regular Fee Paid: <strong id="chipPaid">0</strong></div>
     </div>
 
     <!-- Filters -->
@@ -162,7 +112,7 @@
     <!-- Export -->
     <div class="export-row">
       <button class="btn-primary" id="exportNotPaidBtn" style="margin-top:0;">
-        <i class="fas fa-file-excel"></i> Export Not Paid (Excel)
+        <i class="fas fa-file-excel"></i> Export Regular Not Paid (Excel)
       </button>
       <button class="btn-secondary" id="exportFilteredBtn" style="margin-top:0;">
         <i class="fas fa-download"></i> Export Filtered List
@@ -176,50 +126,64 @@
 </div>
 
 <script>
-// Back button – use replace to avoid history issues
+// Back button
 document.getElementById('backButton').addEventListener('click', function() {
   window.location.replace('fee-entry.html');
 });
 
-let allStudents  = [];
-let notPaidList  = [];
+let allStudents = [];
+let regularNotPaidList = [];
 let filteredList = [];
 
-async function loadData(studentList) {
+// Check if student has paid regular fee (any payment with regularFee > 0)
+async function getRegularPaidSet() {
   try {
-    const snap   = await paymentsCollection.get();
+    const snap = await paymentsCollection.get();
     const paidSet = new Set();
-    snap.forEach(doc => paidSet.add(String(doc.data().hall)));
-
-    notPaidList = studentList.filter(s => !paidSet.has(String(s['Hall Ticket'])));
-    allStudents = studentList;
-
-    document.getElementById('chipTotal').textContent   = allStudents.length;
-    document.getElementById('chipNotPaid').textContent = notPaidList.length;
-    document.getElementById('chipPaid').textContent    = allStudents.length - notPaidList.length;
-    document.getElementById('summaryStrip').style.display = 'flex';
-
-    const groups = [...new Set(allStudents.map(s => s['Group']).filter(Boolean))].sort();
-    const groupSel = document.getElementById('filterGroup');
-    groupSel.innerHTML = '<option value="">All Groups</option>';
-    groups.forEach(g => {
-      const opt = document.createElement('option');
-      opt.value = g; opt.textContent = g;
-      groupSel.appendChild(opt);
+    snap.forEach(doc => {
+      const data = doc.data();
+      const regularFee = parseFloat(data.regularFee);
+      if (regularFee > 0) {
+        paidSet.add(String(data.hall));
+      }
     });
-
-    applyFilters();
+    return paidSet;
   } catch (err) {
-    document.getElementById('list').innerHTML =
-      `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${escapeHtml(err.message)}</p></div>`;
+    console.error(err);
+    return new Set();
   }
+}
+
+async function loadData(studentList, regularPaidSet) {
+  allStudents = studentList;
+  // Students who have NOT paid regular fee
+  regularNotPaidList = allStudents.filter(s => !regularPaidSet.has(String(s['Hall Ticket'])));
+
+  document.getElementById('chipTotal').textContent = allStudents.length;
+  document.getElementById('chipNotPaid').textContent = regularNotPaidList.length;
+  document.getElementById('chipPaid').textContent = allStudents.length - regularNotPaidList.length;
+  document.getElementById('summaryStrip').style.display = 'flex';
+
+  // Populate group filter
+  const groups = [...new Set(allStudents.map(s => s['Group']).filter(Boolean))].sort();
+  const groupSel = document.getElementById('filterGroup');
+  groupSel.innerHTML = '<option value="">All Groups</option>';
+  groups.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g;
+    opt.textContent = g;
+    groupSel.appendChild(opt);
+  });
+
+  applyFilters();
 }
 
 async function init() {
   try {
     const students = await loadStudentsFromCloud();
+    const regularPaidSet = await getRegularPaidSet();
     document.getElementById('localFallback').style.display = 'none';
-    await loadData(students);
+    await loadData(students, regularPaidSet);
   } catch (err) {
     if (err.type === 'CORS_ERROR' || err.type === 'FIREBASE_ERROR') {
       document.getElementById('localFallback').style.display = 'block';
@@ -238,18 +202,19 @@ document.getElementById('localFallbackInput').addEventListener('change', async e
   try {
     const buf = await e.target.files[0].arrayBuffer();
     const students = parseStudentsFromBuffer(buf);
+    const regularPaidSet = await getRegularPaidSet();
     document.getElementById('localFallback').style.display = 'none';
     showToast(`Loaded ${students.length} students locally`, 'success');
-    await loadData(students);
+    await loadData(students, regularPaidSet);
   } catch (err) { showToast('Could not read file: ' + err.message, 'error'); }
   e.target.value = '';
 });
 
 function applyFilters() {
   const search = document.getElementById('filterSearch').value.trim().toLowerCase();
-  const group  = document.getElementById('filterGroup').value;
+  const group = document.getElementById('filterGroup').value;
 
-  filteredList = notPaidList.filter(s => {
+  filteredList = regularNotPaidList.filter(s => {
     const matchSearch = !search ||
       s['Name'].toLowerCase().includes(search) ||
       String(s['Hall Ticket']).toLowerCase().includes(search);
@@ -264,7 +229,7 @@ function renderList() {
   if (filteredList.length === 0) {
     listEl.innerHTML = `<div class="empty-state">
       <i class="fas fa-check-circle" style="color:var(--green)"></i>
-      <p>${notPaidList.length === 0 ? 'All students have paid! 🎉' : 'No students match your filter.'}</p>
+      <p>${regularNotPaidList.length === 0 ? 'All students have paid regular fee! 🎉' : 'No students match your filter.'}</p>
     </div>`;
     return;
   }
@@ -283,7 +248,7 @@ function renderList() {
           &nbsp;·&nbsp; Result: ${escapeHtml(s['Result']) || '—'}
         </div>
       </div>
-      <span class="badge badge-unpaid" style="flex-shrink:0;">⚠ Not Paid</span>
+      <span class="badge badge-unpaid" style="flex-shrink:0;">⚠ Regular Fee Pending</span>
     </div>
   `).join('');
 
@@ -298,14 +263,14 @@ document.getElementById('filterSearch').addEventListener('input', applyFilters);
 document.getElementById('filterGroup').addEventListener('change', applyFilters);
 
 document.getElementById('exportNotPaidBtn').addEventListener('click', () => {
-  if (!notPaidList.length) { showToast('No unpaid students.', 'info'); return; }
-  exportToExcel(notPaidList, 'Not_Paid_Students', 'NotPaid');
+  if (!regularNotPaidList.length) { showToast('No students with regular fee pending.', 'info'); return; }
+  exportToExcel(regularNotPaidList, 'Regular_Fee_Not_Paid', 'NotPaid');
   showToast('Exported!', 'success');
 });
 
 document.getElementById('exportFilteredBtn').addEventListener('click', () => {
   if (!filteredList.length) { showToast('No data in current filter.', 'info'); return; }
-  exportToExcel(filteredList, 'Not_Paid_Filtered', 'NotPaid');
+  exportToExcel(filteredList, 'Regular_Fee_Not_Paid_Filtered', 'NotPaid');
   showToast('Exported filtered list!', 'success');
 });
 
