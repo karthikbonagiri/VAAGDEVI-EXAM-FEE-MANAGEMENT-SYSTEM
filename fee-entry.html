@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Master Minds | Fee Entry</title>
+  <title>Master Minds | Payment History</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,7 +11,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
@@ -21,87 +20,11 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: 'Inter', sans-serif;
       background: #f0f4f8;
       padding: 1.5rem;
-      min-height: 100vh;
     }
-
-    /* Loading screen */
-    .loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.98);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .loading-screen i {
-      font-size: 3rem;
-      color: #f5b042;
-    }
-
-    /* Login overlay */
-    #loginOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-    }
-    .login-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 2rem;
-      max-width: 360px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-    }
-    .login-card i {
-      font-size: 3rem;
-      color: #f5b042;
-      margin-bottom: 1rem;
-    }
-    .login-card input {
-      width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      border: 1px solid #e2e8f0;
-      border-radius: 2rem;
-      font-family: inherit;
-    }
-    .btn-primary {
-      background: linear-gradient(95deg, #1e4663, #2b5c84);
-      color: white;
-      border: none;
-      padding: 0.75rem;
-      border-radius: 2rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      width: 100%;
-    }
-    .btn-primary:hover {
-      background: linear-gradient(95deg, #143a52, #1e4a6e);
-      transform: translateY(-1px);
-    }
-
-    /* Main app container */
     .app-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -110,8 +33,6 @@
       box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
       overflow: hidden;
     }
-
-    /* Header */
     .main-header {
       background: linear-gradient(135deg, #0b2b3b, #1a4a6f);
       padding: 1rem 2rem;
@@ -150,19 +71,7 @@
       font-size: 0.7rem;
       color: #f5b042;
     }
-    .header-badge {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(4px);
-      padding: 0.4rem 1rem;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      color: #ffeaaf;
-    }
-    .header-links {
-      display: flex;
-      gap: 0.75rem;
-    }
-    .header-link {
+    .header-back-btn {
       background: rgba(255,255,255,0.15);
       padding: 0.4rem 1rem;
       border-radius: 40px;
@@ -174,59 +83,73 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      border: none;
+      cursor: pointer;
     }
-    .header-link:hover {
+    .header-back-btn:hover {
       background: rgba(255,255,255,0.3);
     }
-
-    /* Search + student details row */
-    .lookup-row {
-      display: flex;
-      gap: 1.5rem;
+    .page-content {
       padding: 1.5rem;
+    }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1e4663;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .summary-strip {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .summary-chip {
       background: #f8fafc;
-      border-bottom: 1px solid #eef2f6;
+      border: 1px solid #eef2f6;
+      border-radius: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .search-col {
+    .summary-chip.green {
+      background: #e8f5e9;
+      border-color: #c8e6c9;
+      color: #2e7d32;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      align-items: flex-end;
+    }
+    .filter-bar .input-group {
       flex: 1;
+      min-width: 140px;
     }
-    .student-detail-col {
-      flex: 1.5;
+    .filter-bar label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5c7492;
+      display: block;
+      margin-bottom: 0.3rem;
     }
-    .search-wrapper {
-      position: relative;
-      margin-bottom: 0.75rem;
-    }
-    .search-wrapper i {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-    }
-    #search {
+    .filter-bar input, .filter-bar select {
       width: 100%;
-      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      padding: 0.5rem;
       border: 1.5px solid #e2e8f0;
-      border-radius: 2rem;
-      font-size: 0.9rem;
-      transition: 0.2s;
-    }
-    #search:focus {
-      outline: none;
-      border-color: #f5b042;
-      box-shadow: 0 0 0 3px rgba(245,176,66,0.2);
-    }
-    .clear-btn {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      display: none;
+      border-radius: 1rem;
+      font-family: inherit;
     }
     .btn-secondary {
       background: #f1f5f9;
@@ -237,188 +160,62 @@
       font-weight: 600;
       cursor: pointer;
       transition: 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
     }
     .btn-secondary:hover {
       background: #e6edf4;
     }
-    .student-info-card {
-      background: white;
-      border-radius: 1.2rem;
-      border: 1px solid #eef2f6;
-      padding: 1rem;
-      min-height: 130px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    .btn-primary {
+      background: linear-gradient(95deg, #1e4663, #2b5c84);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
     }
-    .student-info {
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 0.85rem;
-      line-height: 1.5;
+      min-width: 1100px;
     }
-    .student-name {
-      font-weight: 800;
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: #1e4663;
+    .data-table th, .data-table td {
+      border: 1px solid #eef2f6;
+      padding: 0.7rem;
+      text-align: left;
     }
-    .badge {
-      font-size: 0.7rem;
+    .data-table th {
+      background: #1e4663;
+      color: white;
+      font-weight: 600;
+    }
+    .data-table tbody tr:hover {
+      background: #f8faff;
+    }
+    .mode-pill {
+      display: inline-block;
       padding: 0.2rem 0.6rem;
       border-radius: 20px;
-      margin-left: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
     }
-    .badge-paid {
+    .mode-cash {
       background: #e8f5e9;
       color: #2e7d32;
     }
-    .badge-unpaid {
-      background: #fff8e1;
-      color: #b45309;
+    .mode-online {
+      background: #e3f2fd;
+      color: #1565c0;
     }
-    .placeholder-text {
-      color: #6c86a3;
-      text-align: center;
-      padding: 1rem;
-    }
-
-    /* Main grid – payment form + sidebar */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 1.5rem;
-      padding: 1.5rem;
-    }
-    .card {
-      background: white;
-      border-radius: 1.2rem;
-      border: 1px solid #eef2f6;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-      transition: box-shadow 0.2s;
-    }
-    .card:hover {
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    }
-    .card-header {
-      padding: 1rem 1.2rem;
-      border-bottom: 1px solid #eef2f6;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .card-header i {
-      color: #f5b042;
-      font-size: 1.2rem;
-    }
-    .card-header h3 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0;
-      color: #1e4663;
-    }
-    .card-body {
-      padding: 1.2rem;
-    }
-    .form-row {
+    .export-row {
       display: flex;
       gap: 1rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-    .input-group {
-      flex: 1;
-      min-width: 120px;
-    }
-    .input-group label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #5c7492;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
-    input, select {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 1rem;
-      font-family: inherit;
-      font-size: 0.85rem;
-      transition: 0.2s;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #f5b042;
-      box-shadow: 0 0 0 2px rgba(245,176,66,0.2);
-    }
-    .total-amount {
-      background: #e8f5e9;
-      border-radius: 1rem;
-      padding: 0.6rem;
-      text-align: center;
-      font-weight: 700;
-      font-size: 1rem;
-      margin: 0.5rem 0 1rem 0;
-      color: #1e4663;
-    }
-    .stat-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid #eef2f6;
-    }
-    .stat-item:last-child {
-      border-bottom: none;
-    }
-    .upload-area {
-      border: 2px dashed #e2e8f0;
-      border-radius: 1rem;
-      padding: 0.8rem;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: 0.8rem;
-      transition: 0.2s;
-    }
-    .upload-area:hover {
-      border-color: #f5b042;
-      background: #fffbf0;
-    }
-    .cors-alert {
-      background: #fff8e1;
-      border-radius: 0.8rem;
-      padding: 0.6rem;
-      margin-top: 0.6rem;
-      display: none;
-    }
-    .local-drop {
-      border: 1px dashed #fcd34d;
-      border-radius: 0.8rem;
-      padding: 0.4rem;
-      text-align: center;
-      cursor: pointer;
-    }
-    .nav-links {
-      display: flex;
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-    }
-    .nav-link {
-      flex: 1;
-      text-align: center;
-      background: #f1f5f9;
-      padding: 0.5rem;
-      border-radius: 2rem;
-      text-decoration: none;
-      color: #1e4663;
-      font-weight: 600;
-      font-size: 0.8rem;
-      transition: 0.2s;
-    }
-    .nav-link:hover {
-      background: #f5b042;
-      color: white;
+      margin-top: 1.5rem;
     }
     footer {
       background: #0f2c3a;
@@ -427,187 +224,112 @@
       font-size: 0.7rem;
       color: #9cb8cc;
     }
-
-    /* Modal */
-    .modal {
+    .cors-alert-history {
+      background: #fff8e1;
+      border: 1px solid #fde68a;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
     }
-    .modal-content {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 1.5rem;
-      max-width: 450px;
-      width: 90%;
+    .local-pick {
+      border: 2px dashed #fcd34d;
+      border-radius: 0.8rem;
+      padding: 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      background: #fffbeb;
     }
-    .modal-buttons {
-      display: flex;
-      gap: 0.8rem;
-      margin-top: 1rem;
-    }
-
-    @media (max-width: 800px) {
+    @media (max-width: 700px) {
       body {
         padding: 0.8rem;
-      }
-      .lookup-row {
-        flex-direction: column;
-      }
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
-      .col-right {
-        order: -1;
       }
       .main-header {
         flex-direction: column;
         text-align: center;
       }
-      .header-links {
-        justify-content: center;
+      .summary-strip {
+        flex-direction: column;
+      }
+      .filter-bar {
+        flex-direction: column;
+      }
+      .filter-bar .input-group {
+        width: 100%;
+      }
+      .export-row {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
-<div id="loadingScreen" class="loading-screen">
-  <i class="fas fa-spinner fa-pulse fa-3x"></i>
-  <p>Loading...</p>
-</div>
-<div id="loginOverlay" style="display:none;">
-  <div class="login-card">
-    <i class="fas fa-lock"></i>
-    <h2>Exam Fee Management</h2>
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Password">
-    <button id="loginBtn" class="btn-primary">Sign In</button>
-    <div id="loginError" style="color:red; font-size:0.8rem; margin-top:0.5rem;"></div>
-    <p style="font-size:0.7rem; margin-top:1rem;">Developed by Karthik Bonagiri</p>
-  </div>
-</div>
-<div class="app-container" id="mainApp" style="display:none;">
+
+<div class="app-container">
   <header class="main-header">
     <div class="logo-area">
       <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
-      <div class="logo-text">
-        <h1>VAAGDEVI DEGREE COLLEGE, BOATH</h1>
-        <span>Powered by MASTER MINDS – The Learning Hub</span>
-      </div>
+      <div class="logo-text"><h1>MASTER MINDS</h1><span>The Learning Hub</span></div>
     </div>
-    <div class="header-links">
-      <div class="header-badge" id="loadModeBadge"><i class="fas fa-cloud"></i> Cloud</div>
-      <a href="admin.html" class="header-link"><i class="fas fa-user-shield"></i> Admin</a>
-      <a href="index.html" class="header-link"><i class="fas fa-home"></i> Home</a>
-    </div>
+    <button id="backButton" class="header-back-btn"><i class="fas fa-arrow-left"></i> Back to Fee Entry</button>
   </header>
 
-  <!-- Search + Student Details (side by side) -->
-  <div class="lookup-row">
-    <div class="search-col">
-      <div class="search-wrapper">
-        <i class="fas fa-search"></i>
-        <input type="text" id="search" placeholder="Hall Ticket or Name" autocomplete="off">
-        <button class="clear-btn" id="clearSearch"><i class="fas fa-times"></i></button>
-      </div>
-      <button id="addStudentBtn" class="btn-secondary"><i class="fas fa-user-plus"></i> Add New Student</button>
-    </div>
-    <div class="student-detail-col">
-      <div id="studentCard" class="student-info-card">
-        <div class="placeholder-text">Select a student to see details</div>
-      </div>
-    </div>
-  </div>
+  <div class="page-content">
+    <div class="page-title"><i class="fas fa-history" style="color:#f5b042"></i> Payment History</div>
 
-  <div class="main-grid">
-    <!-- Left Column: Payment Form -->
-    <div class="col-left">
-      <div class="card">
-        <div class="card-header"><i class="fas fa-rupee-sign"></i><h3>Record Payment</h3></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="input-group">
-              <label>Regular Fee (₹)</label>
-              <input type="number" id="regular" placeholder="0" value="0" step="1" min="0">
-            </div>
-            <div class="input-group">
-              <label>Backlog Fee (₹)</label>
-              <input type="number" id="backlog" placeholder="0" value="0" step="1" min="0">
-            </div>
-          </div>
-          <div id="totalDisplay" class="total-amount">Total: ₹0</div>
-          <div class="form-row">
-            <div class="input-group">
-              <label>Payment Mode</label>
-              <select id="mode">
-                <option value="Cash">💵 Cash</option>
-                <option value="Online">📱 Online</option>
-              </select>
-            </div>
-            <div class="input-group" id="utrGroup" style="display:none;">
-              <label>UTR / Transaction ID</label>
-              <input type="text" id="utr" placeholder="Transaction ID">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="input-group">
-              <label>Payment Date</label>
-              <input type="date" id="date">
-            </div>
-          </div>
-          <button class="btn-primary" id="savePaymentBtn"><i class="fas fa-save"></i> Save Payment</button>
-        </div>
+    <!-- CORS fallback for student data -->
+    <div class="cors-alert-history" id="corsAlert">
+      <h4><i class="fas fa-exclamation-triangle"></i> Could not load student details (Group/Result)</h4>
+      <p>To show Group and Result columns, please load your students.xlsx file.</p>
+      <div class="local-pick" onclick="document.getElementById('localStudentInput').click()">
+        <i class="fas fa-folder-open"></i> Click to load students.xlsx
+        <input type="file" id="localStudentInput" accept=".xlsx,.xls" style="display:none;">
       </div>
     </div>
 
-    <!-- Right Column: Stats, Cloud, Backup -->
-    <div class="col-right">
-      <div class="nav-links">
-        <a href="notpaid.html" class="nav-link"><i class="fas fa-user-times"></i> Not Paid</a>
-        <a href="payment-history.html" class="nav-link"><i class="fas fa-history"></i> History</a>
+    <!-- Enhanced Summary Chips -->
+    <div class="summary-strip" id="summaryStrip" style="display:none;">
+      <div class="summary-chip"><i class="fas fa-receipt"></i> Records: <strong id="chipCount">0</strong></div>
+      <div class="summary-chip green"><i class="fas fa-rupee-sign"></i> Total Collected: <strong id="chipTotal">₹0</strong></div>
+      <div class="summary-chip"><i class="fas fa-check-circle"></i> Regular Paid: <strong id="chipRegularPaid">0</strong></div>
+      <div class="summary-chip"><i class="fas fa-clock"></i> Backlog Paid: <strong id="chipBacklogPaid">0</strong></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="input-group">
+        <label><i class="fas fa-search"></i> Search</label>
+        <input type="text" id="filterSearch" placeholder="Name or Hall Ticket">
       </div>
-      <div class="card">
-        <div class="card-header"><i class="fas fa-chart-line"></i><h3>Quick Stats</h3></div>
-        <div class="card-body">
-          <div class="stat-item"><span>Total Students</span><span id="statTotal">—</span></div>
-          <div class="stat-item"><span>Regular Fee Paid</span><span id="statPaid" style="color:#2e7d32;">—</span></div>
-          <div class="stat-item"><span>Regular Not Paid</span><span id="statNotPaid" style="color:#c62828;">—</span></div>
-          <div class="stat-item"><span>Total Collected</span><span id="statCollected">—</span></div>
-        </div>
+      <div class="input-group">
+        <label><i class="fas fa-layer-group"></i> Group</label>
+        <select id="filterGroup"><option value="">All Groups</option></select>
       </div>
-      <div class="card">
-        <div class="card-header"><i class="fas fa-cloud-upload-alt"></i><h3>Cloud Storage</h3></div>
-        <div class="card-body">
-          <div class="upload-area" id="uploadArea">
-            <i class="fas fa-file-excel"></i> <span id="uploadAreaText">students.xlsx</span>
-            <input type="file" id="cloudUploadInput" accept=".xlsx,.xls" style="display:none;">
-          </div>
-          <button class="btn-secondary" id="uploadToCloudBtn"><i class="fas fa-upload"></i> Upload to Cloud</button>
-          <button class="btn-secondary" id="syncBtn" style="margin-top:0.5rem;"><i class="fas fa-sync-alt"></i> Refresh Stats</button>
-          <div class="cors-alert" id="corsAlert">
-            <div class="local-drop" onclick="document.getElementById('localFileInput').click()">
-              📂 Load local students.xlsx
-              <input type="file" id="localFileInput" accept=".xlsx,.xls" style="display:none;">
-            </div>
-          </div>
-        </div>
+      <div class="input-group">
+        <label><i class="fas fa-credit-card"></i> Mode</label>
+        <select id="filterMode"><option value="">All Modes</option><option>Cash</option><option>Online</option></select>
       </div>
-      <div class="card">
-        <div class="card-header"><i class="fas fa-database"></i><h3>Backup & Restore</h3></div>
-        <div class="card-body">
-          <button class="btn-secondary" id="exportBackupBtn"><i class="fas fa-download"></i> Export JSON</button>
-          <button class="btn-secondary" id="importBackupBtn" style="margin-top:0.5rem;"><i class="fas fa-upload"></i> Import JSON</button>
-          <input type="file" id="restoreInput" accept=".json" style="display:none;">
-        </div>
+      <div class="input-group">
+        <label><i class="fas fa-calendar-alt"></i> From</label>
+        <input type="date" id="filterFrom">
       </div>
-      <button id="logoutBtn" class="btn-secondary" style="background:#fef2f2; color:#c62828; margin-top:0.5rem;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <div class="input-group">
+        <label><i class="fas fa-calendar-alt"></i> To</label>
+        <input type="date" id="filterTo">
+      </div>
+      <div class="input-group">
+        <button class="btn-secondary" id="clearFiltersBtn">Clear</button>
+      </div>
+    </div>
+
+    <!-- Table container -->
+    <div id="historyContainer">
+      <div class="placeholder-text" style="text-align:center; padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading payment records…</div>
+    </div>
+
+    <!-- Export -->
+    <div class="export-row">
+      <button class="btn-primary" id="exportBtn"><i class="fas fa-file-excel"></i> Export to Excel</button>
     </div>
   </div>
   <footer>
@@ -615,274 +337,194 @@
   </footer>
 </div>
 
-<!-- Add Student Modal -->
-<div id="addStudentModal" class="modal">
-  <div class="modal-content">
-    <h3><i class="fas fa-user-plus"></i> Add New Student</h3>
-    <input type="text" id="newHallTicket" placeholder="Hall Ticket *" style="width:100%; margin:0.5rem 0; padding:0.6rem; border-radius:1rem;">
-    <input type="text" id="newName" placeholder="Name *" style="width:100%; margin:0.5rem 0; padding:0.6rem; border-radius:1rem;">
-    <input type="text" id="newFatherName" placeholder="Father Name" style="width:100%; margin:0.5rem 0; padding:0.6rem; border-radius:1rem;">
-    <input type="text" id="newGroup" placeholder="Group" style="width:100%; margin:0.5rem 0; padding:0.6rem; border-radius:1rem;">
-    <input type="text" id="newResult" placeholder="Result" style="width:100%; margin:0.5rem 0; padding:0.6rem; border-radius:1rem;">
-    <div class="modal-buttons">
-      <button class="btn-secondary" id="cancelAddBtn">Cancel</button>
-      <button class="btn-primary" id="confirmAddBtn">Save</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// Firebase Auth and App Logic (unchanged, fully functional)
-const auth = firebase.auth();
-const loadingScreen = document.getElementById('loadingScreen');
-const loginOverlay = document.getElementById('loginOverlay');
-const mainApp = document.getElementById('mainApp');
-const loginEmail = document.getElementById('loginEmail');
-const loginPassword = document.getElementById('loginPassword');
-const loginBtn = document.getElementById('loginBtn');
-const loginError = document.getElementById('loginError');
-const logoutBtn = document.getElementById('logoutBtn');
-
-loadingScreen.style.display = 'flex';
-loginOverlay.style.display = 'none';
-mainApp.style.display = 'none';
-
-auth.onAuthStateChanged(user => {
-  loadingScreen.style.display = 'none';
-  if (user) {
-    loginOverlay.style.display = 'none';
-    mainApp.style.display = 'block';
-    initStudents();
-  } else {
-    loginOverlay.style.display = 'flex';
-    mainApp.style.display = 'none';
-  }
+// Back button
+document.getElementById('backButton').addEventListener('click', () => {
+  window.location.replace('fee-entry.html');
 });
 
-loginBtn.addEventListener('click', async () => {
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value;
-  loginError.innerText = '';
+let allPayments = [];
+let filteredPayments = [];
+let studentMap = new Map(); // Hall Ticket -> student object
+let groupsSet = new Set();
+
+// Load students for Group/Result
+async function loadStudentData() {
   try {
-    await auth.signInWithEmailAndPassword(email, password);
+    const students = await loadStudentsFromCloud();
+    studentMap.clear();
+    groupsSet.clear();
+    students.forEach(s => {
+      studentMap.set(String(s['Hall Ticket']), s);
+      if (s['Group']) groupsSet.add(s['Group']);
+    });
+    updateGroupFilter();
+    document.getElementById('corsAlert').style.display = 'none';
   } catch (err) {
-    loginError.innerText = err.message;
+    if (err.type === 'CORS_ERROR' || err.type === 'FIREBASE_ERROR') {
+      document.getElementById('corsAlert').style.display = 'block';
+    } else {
+      showToast('Could not load student details: ' + err.message, 'warning');
+    }
   }
-});
-if (logoutBtn) logoutBtn.addEventListener('click', async () => { await auth.signOut(); window.location.href = 'index.html'; });
-
-let students = [], selectedStudent = null, paidSet = new Set();
-
-const searchEl = document.getElementById('search');
-const clearBtn = document.getElementById('clearSearch');
-const cardEl = document.getElementById('studentCard');
-const saveBtn = document.getElementById('savePaymentBtn');
-const regularEl = document.getElementById('regular');
-const backlogEl = document.getElementById('backlog');
-const modeEl = document.getElementById('mode');
-const utrEl = document.getElementById('utr');
-const utrGroup = document.getElementById('utrGroup');
-const dateEl = document.getElementById('date');
-const totalDisplay = document.getElementById('totalDisplay');
-const uploadArea = document.getElementById('uploadArea');
-const uploadInput = document.getElementById('cloudUploadInput');
-const uploadBtn = document.getElementById('uploadToCloudBtn');
-const syncBtn = document.getElementById('syncBtn');
-const exportBtn = document.getElementById('exportBackupBtn');
-const importBtn = document.getElementById('importBackupBtn');
-const restoreInput = document.getElementById('restoreInput');
-const corsAlert = document.getElementById('corsAlert');
-const localInput = document.getElementById('localFileInput');
-const addStudentBtn = document.getElementById('addStudentBtn');
-const modal = document.getElementById('addStudentModal');
-const cancelAddBtn = document.getElementById('cancelAddBtn');
-const confirmAddBtn = document.getElementById('confirmAddBtn');
-const newHallTicket = document.getElementById('newHallTicket');
-const newName = document.getElementById('newName');
-const newFatherName = document.getElementById('newFatherName');
-const newGroup = document.getElementById('newGroup');
-const newResult = document.getElementById('newResult');
-
-function updateTotal() {
-  const regular = parseFloat(regularEl.value) || 0;
-  const backlog = parseFloat(backlogEl.value) || 0;
-  const total = regular + backlog;
-  totalDisplay.innerHTML = `Total: ₹${total.toLocaleString('en-IN')}`;
-  totalDisplay.style.background = total > 0 ? "#c8e6c9" : "#e8f5e9";
 }
-regularEl.addEventListener('input', updateTotal);
-backlogEl.addEventListener('input', updateTotal);
-if (modeEl) modeEl.addEventListener('change', () => {
-  utrGroup.style.display = modeEl.value === 'Online' ? 'block' : 'none';
-  if (modeEl.value !== 'Online') utrEl.value = '';
-});
 
-async function loadStats() {
+function updateGroupFilter() {
+  const groupSelect = document.getElementById('filterGroup');
+  const currentVal = groupSelect.value;
+  groupSelect.innerHTML = '<option value="">All Groups</option>';
+  [...groupsSet].sort().forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g;
+    opt.textContent = g;
+    groupSelect.appendChild(opt);
+  });
+  if (currentVal && groupsSet.has(currentVal)) groupSelect.value = currentVal;
+}
+
+// Local fallback for students
+document.getElementById('localStudentInput').addEventListener('change', async (e) => {
+  if (!e.target.files.length) return;
   try {
-    const snap = await paymentsCollection.get();
-    const payments = []; snap.forEach(doc => payments.push(doc.data()));
-    const regularPaidSet = new Set();
-    payments.forEach(p => { if (parseFloat(p.regularFee) > 0) regularPaidSet.add(String(p.hall)); });
-    paidSet = regularPaidSet;
-    const totalCollected = payments.reduce((s,p) => s + (parseFloat(p.regularFee)||0) + (parseFloat(p.backlogFee)||0), 0);
-    document.getElementById('statPaid').textContent = regularPaidSet.size;
-    document.getElementById('statNotPaid').textContent = Math.max(0, students.length - regularPaidSet.size);
-    document.getElementById('statCollected').textContent = formatINR(totalCollected);
-  } catch {}
-}
-async function onStudentsLoaded() {
-  document.getElementById('statTotal').textContent = students.length;
-  cardEl.innerHTML = '<div class="placeholder-text">Select a student to see details</div>';
-  await loadStats();
-}
-function setCardError(msg, showCors=false) {
-  cardEl.innerHTML = `<div class="placeholder-text">⚠️ ${escapeHtml(msg)}</div>`;
-  if(showCors) corsAlert.style.display = 'block';
-}
-async function initStudents() {
-  if(!mainApp || mainApp.style.display !== 'block') return;
-  cardEl.innerHTML = '<div class="placeholder-text">Loading students...</div>';
-  corsAlert.style.display = 'none';
+    const buf = await e.target.files[0].arrayBuffer();
+    const students = parseStudentsFromBuffer(buf);
+    studentMap.clear();
+    groupsSet.clear();
+    students.forEach(s => {
+      studentMap.set(String(s['Hall Ticket']), s);
+      if (s['Group']) groupsSet.add(s['Group']);
+    });
+    updateGroupFilter();
+    document.getElementById('corsAlert').style.display = 'none';
+    showToast(`Loaded ${studentMap.size} students`, 'success');
+    renderTable();
+  } catch (err) { showToast('Error: ' + err.message, 'error'); }
+  e.target.value = '';
+});
+
+// Load payments from Firestore
+async function loadPayments() {
   try {
-    students = await loadStudentsFromCloud();
-    await onStudentsLoaded();
-  } catch(err) {
-    if(err.type === 'NOT_FOUND') setCardError('Upload students.xlsx in Cloud Storage');
-    else if(err.type === 'CORS_ERROR') setCardError('CORS: Use local file', true);
-    else setCardError(err.message, true);
-    document.getElementById('statTotal').textContent = '0';
+    const snap = await paymentsCollection.orderBy('timestamp', 'desc').get();
+    allPayments = [];
+    snap.forEach(doc => allPayments.push({ id: doc.id, ...doc.data() }));
+    document.getElementById('summaryStrip').style.display = 'flex';
+    applyFilters();
+  } catch (err) {
+    document.getElementById('historyContainer').innerHTML = `<div class="empty-state">Error: ${escapeHtml(err.message)}</div>`;
   }
 }
-async function saveStudentsToCloud() {
-  if(!students.length) return;
-  const ws = XLSX.utils.json_to_sheet(students);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Students');
-  const buf = XLSX.write(wb, { bookType:'xlsx', type:'array' });
-  const blob = new Blob([buf], { type:'application/octet-stream' });
-  const file = new File([blob], 'students.xlsx');
-  await studentsExcelRef.put(file);
+
+function updateSummary(list) {
+  let total = 0;
+  let regularPaidSet = new Set();
+  let backlogPaidSet = new Set();
+  list.forEach(p => {
+    total += (parseFloat(p.regularFee) || 0) + (parseFloat(p.backlogFee) || 0);
+    if (parseFloat(p.regularFee) > 0) regularPaidSet.add(String(p.hall));
+    if (parseFloat(p.backlogFee) > 0) backlogPaidSet.add(String(p.hall));
+  });
+  document.getElementById('chipCount').textContent = list.length;
+  document.getElementById('chipTotal').textContent = formatINR(total);
+  document.getElementById('chipRegularPaid').textContent = regularPaidSet.size;
+  document.getElementById('chipBacklogPaid').textContent = backlogPaidSet.size;
 }
-addStudentBtn.addEventListener('click',()=>modal.style.display='flex');
-cancelAddBtn.addEventListener('click',()=>{ modal.style.display='none'; newHallTicket.value=''; newName.value=''; newFatherName.value=''; newGroup.value=''; newResult.value=''; });
-confirmAddBtn.addEventListener('click',async()=>{
-  const ht=newHallTicket.value.trim(), name=newName.value.trim();
-  if(!ht||!name){ showToast('Hall Ticket and Name required','warning'); return; }
-  if(students.some(s=>String(s['Hall Ticket'])===ht)){ showToast('Hall Ticket exists','error'); return; }
-  const newStudent={'Hall Ticket':ht,'Name':name,'Father Name':newFatherName.value.trim()||'','Group':newGroup.value.trim()||'','Result':newResult.value.trim()||''};
-  students.push(newStudent);
-  try{
-    await saveStudentsToCloud();
-    showToast(`Student ${name} added`,'success');
-    modal.style.display='none';
-    newHallTicket.value=''; newName.value=''; newFatherName.value=''; newGroup.value=''; newResult.value='';
-    document.getElementById('statTotal').textContent=students.length;
-    await loadStats();
-    if(searchEl.value.trim()==='') cardEl.innerHTML='<div class="placeholder-text">Select a student</div>';
-    else searchEl.dispatchEvent(new Event('input'));
-  } catch(err){ showToast('Save failed: '+err.message,'error'); students.pop(); }
-});
-if(localInput) localInput.addEventListener('change',async()=>{
-  if(!localInput.files.length) return;
-  const file=localInput.files[0];
-  try{
-    const buf=await file.arrayBuffer();
-    students=parseStudentsFromBuffer(buf);
-    corsAlert.style.display='none';
-    document.getElementById('loadModeBadge').innerHTML='<i class="fas fa-laptop"></i> Local';
-    showToast(`Loaded ${students.length} students`,'success');
-    await onStudentsLoaded();
-  } catch(err){ showToast('Error: '+err.message,'error'); }
-  localInput.value='';
-});
-searchEl.addEventListener('input',function(){
-  const val=this.value.trim().toLowerCase();
-  clearBtn.style.display=val?'flex':'none';
-  if(!val){ cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; return; }
-  const found=students.find(s=>String(s['Hall Ticket']).toLowerCase()===val||(s['Name']&&s['Name'].toLowerCase().includes(val)));
-  if(found){
-    selectedStudent=found;
-    const isPaid=paidSet.has(String(found['Hall Ticket']));
-    cardEl.innerHTML=`<div class="student-info"><div class="student-name"><i class="fas fa-user-graduate"></i> ${escapeHtml(found['Name'])} <span class="badge ${isPaid?'badge-paid':'badge-unpaid'}">${isPaid?'Paid':'Not Paid'}</span></div><div><i class="fas fa-id-card"></i> HT: ${escapeHtml(found['Hall Ticket'])}</div><div><i class="fas fa-user"></i> Father: ${escapeHtml(found['Father Name'])}</div><div><i class="fas fa-layer-group"></i> Group: ${escapeHtml(found['Group'])}</div><div><i class="fas fa-chart-bar"></i> Result: ${escapeHtml(found['Result'])}</div></div>`;
-    regularEl.focus();
-  } else {
-    cardEl.innerHTML='<div class="placeholder-text">Student not found</div>';
-    selectedStudent=null;
+
+function applyFilters() {
+  const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+  const group = document.getElementById('filterGroup').value;
+  const mode = document.getElementById('filterMode').value;
+  const from = document.getElementById('filterFrom').value;
+  const to = document.getElementById('filterTo').value;
+
+  filteredPayments = allPayments.filter(p => {
+    const student = studentMap.get(String(p.hall));
+    const studentGroup = student ? (student['Group'] || '') : '';
+    const matchSearch = !search || (p.name && p.name.toLowerCase().includes(search)) || (p.hall && String(p.hall).toLowerCase().includes(search));
+    const matchGroup = !group || studentGroup === group;
+    const matchMode = !mode || p.mode === mode;
+    const matchFrom = !from || p.date >= from;
+    const matchTo = !to || p.date <= to;
+    return matchSearch && matchGroup && matchMode && matchFrom && matchTo;
+  });
+
+  updateSummary(filteredPayments);
+  renderTable();
+}
+
+function renderTable() {
+  const container = document.getElementById('historyContainer');
+  if (filteredPayments.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="text-align:center; padding:2rem;">${allPayments.length === 0 ? 'No payments recorded yet.' : 'No records match your filter.'}</div>`;
+    return;
   }
+
+  let html = `<div class="table-wrapper"><table class="data-table">
+    <thead>
+      <tr><th>Hall Ticket</th><th>Name</th><th>Group</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Result</th><th>Mode</th><th>UTR</th><th>Date</th></tr>
+    </thead>
+    <tbody>`;
+  filteredPayments.forEach(p => {
+    const student = studentMap.get(String(p.hall));
+    const group = student && student['Group'] ? student['Group'] : '—';
+    const result = student && student['Result'] ? student['Result'] : '—';
+    const total = (parseFloat(p.regularFee) || 0) + (parseFloat(p.backlogFee) || 0);
+    const modeClass = p.mode === 'Online' ? 'mode-online' : 'mode-cash';
+    html += `<tr>
+      <td>${escapeHtml(p.hall)}</td>
+      <td class="td-name">${escapeHtml(p.name)}</td>
+      <td>${escapeHtml(group)}</td>
+      <td class="td-amount">${formatINR(p.regularFee)}</td>
+      <td class="td-amount">${formatINR(p.backlogFee)}</td>
+      <td class="td-amount"><strong>${formatINR(total)}</strong></td>
+      <td>${escapeHtml(result)}</td>
+      <td><span class="mode-pill ${modeClass}">${p.mode === 'Online' ? '📱' : '💵'} ${escapeHtml(p.mode)}</span></td>
+      <td>${escapeHtml(p.utr || '—')}</td>
+      <td>${escapeHtml(p.date)}</td>
+    </tr>`;
+  });
+  html += `</tbody></table></div><div style="margin-top:0.5rem; font-size:0.8rem;">Showing ${filteredPayments.length} of ${allPayments.length} records</div>`;
+  container.innerHTML = html;
+}
+
+// Event listeners
+['filterSearch', 'filterFrom', 'filterTo'].forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
+document.getElementById('filterGroup').addEventListener('change', applyFilters);
+document.getElementById('filterMode').addEventListener('change', applyFilters);
+document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+  document.getElementById('filterSearch').value = '';
+  document.getElementById('filterGroup').value = '';
+  document.getElementById('filterMode').value = '';
+  document.getElementById('filterFrom').value = '';
+  document.getElementById('filterTo').value = '';
+  applyFilters();
 });
-clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; });
-async function isUtrDuplicate(utr){ if(!utr) return false; const snap=await paymentsCollection.where('utr','==',utr).get(); return !snap.empty; }
-saveBtn.addEventListener('click',async()=>{
-  if(!selectedStudent){ showToast('Select a student first','warning'); return; }
-  const regular=regularEl.value.trim();
-  const backlog=backlogEl.value.trim();
-  const mode=modeEl.value;
-  let utr=utrEl.value.trim();
-  let date=dateEl.value;
-  if(!regular && !backlog){ showToast('Enter amount','warning'); return; }
-  if(mode==='Online' && !utr){ showToast('UTR required','warning'); return; }
-  if(mode!=='Online') utr='';
-  if(!date) date=new Date().toISOString().split('T')[0];
-  if(mode==='Online' && utr && await isUtrDuplicate(utr)){ showToast('UTR already used','error'); return; }
-  const ht=String(selectedStudent['Hall Ticket']);
-  if(paidSet.has(ht) && !confirm(`Already paid regular fee. Add another payment?`)) return;
-  saveBtn.disabled=true; saveBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
-  try{
-    await paymentsCollection.add({ hall:ht, name:selectedStudent['Name'], fatherName:selectedStudent['Father Name']||'', group:selectedStudent['Group']||'', regularFee:regular||'0', backlogFee:backlog||'0', mode, utr, date, timestamp:Date.now() });
-    paidSet.add(ht);
-    showToast(`Payment saved for ${selectedStudent['Name']}`,'success');
-    regularEl.value='0'; backlogEl.value='0'; utrEl.value=''; dateEl.value=new Date().toISOString().split('T')[0];
-    updateTotal();
-    searchEl.dispatchEvent(new Event('input'));
-    await loadStats();
-  } catch(err){ showToast('Save failed: '+err.message,'error'); }
-  finally{ saveBtn.disabled=false; saveBtn.innerHTML='<i class="fas fa-save"></i> Save Payment'; }
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (!filteredPayments.length) { showToast('No records to export.', 'info'); return; }
+  const exportData = filteredPayments.map(p => {
+    const student = studentMap.get(String(p.hall));
+    const group = student ? (student['Group'] || '—') : '—';
+    const result = student ? (student['Result'] || '—') : '—';
+    return {
+      'Hall Ticket': p.hall,
+      'Name': p.name,
+      'Group': group,
+      'Regular Fee': p.regularFee,
+      'Backlog Fee': p.backlogFee,
+      'Total': (parseFloat(p.regularFee)||0) + (parseFloat(p.backlogFee)||0),
+      'Result': result,
+      'Mode': p.mode,
+      'UTR': p.utr || '',
+      'Date': p.date
+    };
+  });
+  exportToExcel(exportData, `Payment_History_${new Date().toISOString().slice(0,10)}`, 'Payments');
+  showToast('Exported!', 'success');
 });
-uploadArea.addEventListener('click',()=>uploadInput.click());
-uploadInput.addEventListener('change',()=>{ if(uploadInput.files[0]) document.getElementById('uploadAreaText').innerHTML = uploadInput.files[0].name; });
-uploadBtn.addEventListener('click',async()=>{
-  if(!uploadInput.files.length){ showToast('Select file','warning'); return; }
-  uploadBtn.disabled=true; uploadBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
-  try{ await studentsExcelRef.put(uploadInput.files[0]); showToast('Uploaded!','success'); uploadInput.value=''; document.getElementById('uploadAreaText').innerHTML='students.xlsx'; await initStudents(); }
-  catch(err){ showToast('Upload failed: '+err.message,'error'); }
-  finally{ uploadBtn.disabled=false; uploadBtn.innerHTML='Upload'; }
-});
-syncBtn.addEventListener('click',async()=>{ await loadStats(); showToast('Stats refreshed','success'); });
-exportBtn.addEventListener('click',async()=>{
-  exportBtn.disabled=true; exportBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
-  try{ const snap=await paymentsCollection.get(); const paymentsData=[]; snap.forEach(doc=>paymentsData.push({id:doc.id,...doc.data()})); const backup={version:'2.0',timestamp:new Date().toISOString(),students,payments:paymentsData}; const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url); showToast('Backup downloaded','success'); }
-  catch(err){ showToast('Export failed','error'); }
-  finally{ exportBtn.disabled=false; exportBtn.innerHTML='Export JSON'; }
-});
-importBtn.addEventListener('click',()=>restoreInput.click());
-restoreInput.addEventListener('change',async e=>{
-  if(!e.target.files.length) return;
-  if(!confirm('Overwrite ALL cloud data?')) return;
-  const reader=new FileReader();
-  reader.onload=async evt=>{
-    try{
-      const backup=JSON.parse(evt.target.result);
-      if(!backup.students||!backup.payments){ showToast('Invalid backup','error'); return; }
-      if(backup.students.length){
-        const ws=XLSX.utils.json_to_sheet(backup.students);
-        const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Students');
-        const buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
-        await studentsExcelRef.put(new File([buf],'students.xlsx'));
-      }
-      const snap=await paymentsCollection.get();
-      const batch=db.batch();
-      snap.forEach(doc=>batch.delete(doc.ref));
-      await batch.commit();
-      for(const p of backup.payments){ const{id,...data}=p; await paymentsCollection.add(data); }
-      showToast('Restore successful, reloading','success');
-      setTimeout(()=>location.reload(),1600);
-    } catch(err){ showToast('Restore error: '+err.message,'error'); }
-  };
-  reader.readAsText(e.target.files[0]);
-  restoreInput.value='';
-});
-dateEl.value=new Date().toISOString().split('T')[0];
-updateTotal();
+
+loadStudentData();
+loadPayments();
 </script>
 </body>
 </html>
