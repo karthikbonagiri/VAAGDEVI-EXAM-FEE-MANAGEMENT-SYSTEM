@@ -236,6 +236,14 @@
       <div class="input-group"><label>Search</label><input type="text" id="filterSearch" placeholder="Name or Hall Ticket"></div>
       <div class="input-group"><label>Group</label><select id="filterGroup"><option value="">All Groups</option></select></div>
       <div class="input-group"><label>Mode</label><select id="filterMode"><option value="">All Modes</option><option>Cash</option><option>Online</option></select></div>
+      <div class="input-group"><label>Payment Status</label>
+        <select id="filterStatus">
+          <option value="all">All</option>
+          <option value="regular_paid">Regular Paid</option>
+          <option value="regular_not_paid">Regular Not Paid</option>
+          <option value="only_backlog">Only Backlog Paid</option>
+        </select>
+      </div>
       <div class="input-group"><label>From</label><input type="date" id="filterFrom"></div>
       <div class="input-group"><label>To</label><input type="date" id="filterTo"></div>
       <div class="input-group"><button class="btn-secondary" id="clearFiltersBtn">Clear</button></div>
@@ -286,6 +294,8 @@ let allPayments = [];
 let filteredPayments = [];
 let studentMap = new Map();
 let groupsSet = new Set();
+let regularPaidSet = new Set();   // hall tickets with any regular payment
+let backlogOnlySet = new Set();    // hall tickets with backlog but no regular
 
 async function loadStudentData() {
   try {
@@ -339,6 +349,21 @@ async function loadPayments() {
     const snap = await paymentsCollection.orderBy('timestamp', 'desc').get();
     allPayments = [];
     snap.forEach(doc => allPayments.push({ id: doc.id, ...doc.data() }));
+    // Compute regularPaidSet and backlogOnlySet from all payments
+    regularPaidSet.clear();
+    backlogOnlySet.clear();
+    const allHalls = new Map(); // hall -> {hasRegular, hasBacklog}
+    allPayments.forEach(p => {
+      const hall = String(p.hall);
+      if (!allHalls.has(hall)) allHalls.set(hall, { hasRegular: false, hasBacklog: false });
+      const status = allHalls.get(hall);
+      if (parseFloat(p.regularFee) > 0) status.hasRegular = true;
+      if (parseFloat(p.backlogFee) > 0) status.hasBacklog = true;
+    });
+    for (let [hall, status] of allHalls.entries()) {
+      if (status.hasRegular) regularPaidSet.add(hall);
+      if (!status.hasRegular && status.hasBacklog) backlogOnlySet.add(hall);
+    }
     document.getElementById('summaryStrip').style.display = 'flex';
     applyFilters();
   } catch (err) {
@@ -363,6 +388,7 @@ function applyFilters() {
   const search = document.getElementById('filterSearch').value.trim().toLowerCase();
   const group = document.getElementById('filterGroup').value;
   const mode = document.getElementById('filterMode').value;
+  const status = document.getElementById('filterStatus').value;
   const from = document.getElementById('filterFrom').value;
   const to = document.getElementById('filterTo').value;
 
@@ -376,7 +402,11 @@ function applyFilters() {
     const matchMode = !mode || p.mode === mode;
     const matchFrom = !from || p.date >= from;
     const matchTo = !to || p.date <= to;
-    return matchSearch && matchGroup && matchMode && matchFrom && matchTo;
+    let matchStatus = true;
+    if (status === 'regular_paid') matchStatus = regularPaidSet.has(String(p.hall));
+    else if (status === 'regular_not_paid') matchStatus = !regularPaidSet.has(String(p.hall));
+    else if (status === 'only_backlog') matchStatus = backlogOnlySet.has(String(p.hall));
+    return matchSearch && matchGroup && matchMode && matchFrom && matchTo && matchStatus;
   });
 
   updateSummary(filteredPayments);
@@ -418,10 +448,12 @@ function renderTable() {
 ['filterSearch', 'filterFrom', 'filterTo'].forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
 document.getElementById('filterGroup').addEventListener('change', applyFilters);
 document.getElementById('filterMode').addEventListener('change', applyFilters);
+document.getElementById('filterStatus').addEventListener('change', applyFilters);
 document.getElementById('clearFiltersBtn').addEventListener('click', () => {
   document.getElementById('filterSearch').value = '';
   document.getElementById('filterGroup').value = '';
   document.getElementById('filterMode').value = '';
+  document.getElementById('filterStatus').value = 'all';
   document.getElementById('filterFrom').value = '';
   document.getElementById('filterTo').value = '';
   applyFilters();
