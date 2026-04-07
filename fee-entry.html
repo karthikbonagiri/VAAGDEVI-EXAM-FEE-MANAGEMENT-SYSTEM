@@ -464,7 +464,7 @@ async function loadStats() {
     const snap = await paymentsCollection.get();
     const payments = [];
     snap.forEach(doc => payments.push(doc.data()));
-    paymentRecordsCount = snap.size;  // total number of payment documents
+    paymentRecordsCount = snap.size;
     regularPaidSet.clear();
     backlogPaidSet.clear();
     anyPaidSet.clear();
@@ -580,36 +580,98 @@ searchEl.addEventListener('input',function(){
   }
 });
 clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; });
-async function isUtrDuplicate(utr){ if(!utr) return false; const snap=await paymentsCollection.where('utr','==',utr).get(); return !snap.empty; }
-saveBtn.addEventListener('click',async()=>{
-  if(!selectedStudent){ showToast('Select a student first','warning'); return; }
-  const regular=regularEl.value.trim();
-  const backlog=backlogEl.value.trim();
-  const mode=modeEl.value;
-  let utr=utrEl.value.trim();
-  let date=dateEl.value;
-  if(!regular && !backlog){ showToast('Enter amount','warning'); return; }
-  if(mode==='Online' && !utr){ showToast('UTR required','warning'); return; }
-  if(mode!=='Online') utr='';
-  if(!date) date=new Date().toISOString().split('T')[0];
-  if(mode==='Online' && utr && await isUtrDuplicate(utr)){ showToast('UTR already used','error'); return; }
-  const ht=String(selectedStudent['Hall Ticket']);
-  if(regularPaidSet.has(ht) && !confirm(`Already paid regular fee. Add another payment?`)) return;
-  saveBtn.disabled=true; saveBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
-  try{
-    await paymentsCollection.add({ hall:ht, name:selectedStudent['Name'], fatherName:selectedStudent['Father Name']||'', group:selectedStudent['Group']||'', regularFee:regular||'0', backlogFee:backlog||'0', mode, utr, date, timestamp:Date.now() });
-    if(regular>0) regularPaidSet.add(ht);
-    if(backlog>0) backlogPaidSet.add(ht);
-    if(regular>0 || backlog>0) anyPaidSet.add(ht);
-    paymentRecordsCount++;
-    showToast(`Payment saved for ${selectedStudent['Name']}`,'success');
-    regularEl.value='0'; backlogEl.value='0'; utrEl.value=''; dateEl.value=new Date().toISOString().split('T')[0];
+
+async function findExistingPayment(hall) {
+  const snapshot = await paymentsCollection.where('hall', '==', hall).get();
+  if (!snapshot.empty) {
+    return { doc: snapshot.docs[0], data: snapshot.docs[0].data() };
+  }
+  return null;
+}
+
+async function isUtrDuplicate(utr, excludeId = null) {
+  if (!utr) return false;
+  let query = paymentsCollection.where('utr', '==', utr);
+  const snapshot = await query.get();
+  if (snapshot.empty) return false;
+  if (excludeId && snapshot.docs[0].id === excludeId) return false;
+  return true;
+}
+
+saveBtn.addEventListener('click', async () => {
+  if (!selectedStudent) { showToast('Select a student first', 'warning'); return; }
+  let regular = parseFloat(regularEl.value) || 0;
+  let backlog = parseFloat(backlogEl.value) || 0;
+  const mode = modeEl.value;
+  let utr = utrEl.value.trim();
+  let date = dateEl.value;
+  if (regular === 0 && backlog === 0) { showToast('Enter at least one amount', 'warning'); return; }
+  if (mode === 'Online' && !utr) { showToast('UTR required for online payment', 'warning'); return; }
+  if (mode !== 'Online') utr = '';
+  if (!date) date = new Date().toISOString().split('T')[0];
+
+  const ht = String(selectedStudent['Hall Ticket']);
+  const existing = await findExistingPayment(ht);
+  let docId = null;
+
+  // Check UTR duplicate (excluding current payment if updating)
+  if (mode === 'Online' && utr) {
+    const duplicate = await isUtrDuplicate(utr, existing ? existing.doc.id : null);
+    if (duplicate) { showToast('UTR already used', 'error'); return; }
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+  try {
+    if (existing) {
+      // Update existing record: add new amounts to existing fees
+      docId = existing.doc.id;
+      const oldRegular = parseFloat(existing.data.regularFee) || 0;
+      const oldBacklog = parseFloat(existing.data.backlogFee) || 0;
+      const newRegular = oldRegular + regular;
+      const newBacklog = oldBacklog + backlog;
+      await paymentsCollection.doc(docId).update({
+        regularFee: newRegular.toString(),
+        backlogFee: newBacklog.toString(),
+        mode: mode,  // update mode to latest payment mode
+        utr: utr,
+        date: date,
+        timestamp: Date.now()
+      });
+      showToast(`Payment updated for ${selectedStudent['Name']}`, 'success');
+    } else {
+      // Create new payment record
+      await paymentsCollection.add({
+        hall: ht,
+        name: selectedStudent['Name'],
+        fatherName: selectedStudent['Father Name'] || '',
+        group: selectedStudent['Group'] || '',
+        regularFee: regular.toString(),
+        backlogFee: backlog.toString(),
+        mode: mode,
+        utr: utr,
+        date: date,
+        timestamp: Date.now()
+      });
+      showToast(`Payment saved for ${selectedStudent['Name']}`, 'success');
+    }
+    // Refresh stats and UI
+    regularEl.value = '0';
+    backlogEl.value = '0';
+    utrEl.value = '';
+    dateEl.value = new Date().toISOString().split('T')[0];
     updateTotal();
-    searchEl.dispatchEvent(new Event('input'));
     await loadStats();
-  } catch(err){ showToast('Save failed: '+err.message,'error'); }
-  finally{ saveBtn.disabled=false; saveBtn.innerHTML='<i class="fas fa-save"></i> Save Payment'; }
+    searchEl.dispatchEvent(new Event('input'));  // refresh student card badge
+  } catch (err) {
+    showToast('Save failed: ' + err.message, 'error');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Payment';
+  }
 });
+
 uploadArea.addEventListener('click',()=>uploadInput.click());
 uploadInput.addEventListener('change',()=>{ if(uploadInput.files[0]) document.getElementById('uploadAreaText').innerHTML = uploadInput.files[0].name; });
 uploadBtn.addEventListener('click',async()=>{
