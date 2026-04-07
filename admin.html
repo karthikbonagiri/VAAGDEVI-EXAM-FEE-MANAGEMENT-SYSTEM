@@ -320,6 +320,9 @@
         <div class="card">
           <div class="card-header"><i class="fas fa-history"></i><h3>Payment Records</h3></div>
           <div class="card-body">
+            <div class="search-bar">
+              <input type="text" id="paymentSearch" placeholder="Search by Hall Ticket or Name...">
+            </div>
             <div class="admin-table" id="paymentsTable">Loading...</div>
           </div>
         </div>
@@ -588,17 +591,22 @@ document.getElementById('closeEditStudent').addEventListener('click', () => {
   document.getElementById('editStudentModal').style.display = 'none';
 });
 
-// Payment table rendering (unchanged, but we add search filter for payments too)
+// Render Payments Table with search filter
 function renderPaymentsTable() {
+  const searchTerm = document.getElementById('paymentSearch')?.value.trim().toLowerCase() || '';
+  const filtered = payments.filter(p => 
+    String(p.hall).toLowerCase().includes(searchTerm) ||
+    (p.name && p.name.toLowerCase().includes(searchTerm))
+  );
   const container = document.getElementById('paymentsTable');
-  if (!payments.length) {
+  if (!filtered.length) {
     container.innerHTML = '<div class="empty-state">No payments found.</div>';
     return;
   }
   let html = `<div class="admin-table"><table class="data-table">
     <thead><tr><th>Hall Ticket</th><th>Name</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Mode</th><th>UTR</th><th>Date</th><th>Actions</th></tr></thead>
     <tbody>`;
-  payments.forEach(p => {
+  filtered.forEach(p => {
     const total = (parseFloat(p.regularFee)||0) + (parseFloat(p.backlogFee)||0);
     html += `<tr>
       <td>${escapeHtml(p.hall)}</td>
@@ -690,8 +698,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Live search for students
+// Live search for students and payments
 document.getElementById('studentSearch').addEventListener('input', () => renderStudentsTable());
+document.getElementById('paymentSearch').addEventListener('input', () => renderPaymentsTable());
 </script>
 </body>
 </html>
