@@ -15,11 +15,62 @@
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f0f4f8;
+      padding: 1.5rem;
+    }
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .main-header {
+      background: linear-gradient(135deg, #0b2b3b, #1a4a6f);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .logo-area { display: flex; align-items: center; gap: 1rem; }
+    .logo-icon {
+      background: linear-gradient(145deg, #f5b042, #e09d2a);
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon i { font-size: 1.8rem; color: white; }
+    .logo-text h1 { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800; color: white; }
+    .logo-text span { font-size: 0.7rem; color: #f5b042; }
+    .header-back-btn {
+      background: rgba(255,255,255,0.15);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: none;
+      cursor: pointer;
+    }
+    .page-content { padding: 1.5rem; }
     .admin-tabs {
       display: flex;
       gap: 0.5rem;
       margin-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #eef2f6;
       padding-bottom: 0.5rem;
       flex-wrap: wrap;
     }
@@ -30,36 +81,99 @@
       font-weight: 600;
       cursor: pointer;
       border-radius: 40px;
-      color: var(--muted);
+      color: #5c7492;
       transition: all 0.2s;
     }
     .tab-btn.active {
-      background: var(--gold);
+      background: #f5b042;
       color: white;
+    }
+    .card {
+      background: white;
+      border-radius: 1.2rem;
+      border: 1px solid #eef2f6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .card-header {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid #eef2f6;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .card-header i { color: #f5b042; font-size: 1.2rem; }
+    .card-header h3 { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; margin: 0; color: #1e4663; }
+    .card-body { padding: 1rem; }
+    .search-bar {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 2rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    .search-bar input:focus {
+      outline: none;
+      border-color: #f5b042;
+    }
+    .btn-primary {
+      background: linear-gradient(95deg, #1e4663, #2b5c84);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #1e4663;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     .admin-table {
       overflow-x: auto;
-      margin-top: 1rem;
     }
-    .admin-table table {
+    .data-table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 0.85rem;
       min-width: 800px;
     }
-    .admin-table th, .admin-table td {
-      border: 1px solid var(--border);
-      padding: 0.6rem;
+    .data-table th, .data-table td {
+      border-bottom: 1px solid #eef2f6;
+      padding: 0.8rem 0.5rem;
       text-align: left;
       vertical-align: middle;
     }
-    .admin-table th {
-      background: var(--navy);
-      color: white;
+    .data-table th {
+      background: #f8fafc;
+      color: #1e4663;
+      font-weight: 700;
+    }
+    .data-table tbody tr:hover {
+      background: #f8faff;
     }
     .edit-btn, .delete-btn {
       padding: 0.3rem 0.7rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       cursor: pointer;
       margin: 0 0.2rem;
       border: none;
@@ -70,7 +184,7 @@
     }
     .delete-btn {
       background: #fee2e2;
-      color: var(--red);
+      color: #c62828;
     }
     .modal {
       display: none;
@@ -96,7 +210,7 @@
       padding: 0.6rem;
       margin-bottom: 0.8rem;
       border-radius: 12px;
-      border: 1px solid var(--border);
+      border: 1px solid #e2e8f0;
     }
     .form-buttons {
       display: flex;
@@ -123,57 +237,30 @@
       border-radius: 28px;
       max-width: 360px;
       text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
     }
-    .admin-login-card i {
-      font-size: 3rem;
-      color: var(--gold);
-      margin-bottom: 1rem;
-    }
+    .admin-login-card i { font-size: 3rem; color: #f5b042; margin-bottom: 1rem; }
     .admin-login-card input {
       width: 100%;
       padding: 0.8rem;
       border-radius: 40px;
-      border: 1px solid var(--border);
+      border: 1px solid #e2e8f0;
       margin-bottom: 1rem;
     }
-    .login-error {
-      color: var(--red);
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
+    .login-error { color: #c62828; font-size: 0.8rem; margin-top: 0.5rem; }
+    footer {
+      background: #0f2c3a;
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.7rem;
+      color: #9cb8cc;
     }
     @media (max-width: 700px) {
-      .main-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-        padding: 0.8rem;
-      }
-      .logo-area {
-        justify-content: center;
-      }
-      .admin-tabs {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-      }
-      .tab-btn {
-        text-align: center;
-      }
-      .admin-table {
-        font-size: 0.75rem;
-      }
-      .admin-table th, .admin-table td {
-        padding: 0.4rem;
-      }
-      .edit-btn, .delete-btn {
-        padding: 0.2rem 0.5rem;
-        font-size: 0.7rem;
-      }
-      .modal-card {
-        width: 95%;
-        padding: 1rem;
-      }
+      body { padding: 0.8rem; }
+      .main-header { flex-direction: column; text-align: center; }
+      .admin-tabs { flex-direction: column; align-items: stretch; }
+      .tab-btn { text-align: center; }
+      .search-bar { flex-direction: column; }
+      .search-bar button { width: 100%; }
     }
   </style>
 </head>
@@ -184,24 +271,24 @@
   <div class="admin-login-card">
     <i class="fas fa-lock"></i>
     <h2>Admin Access</h2>
-    <p style="margin-bottom:1.2rem; color:var(--muted);">Enter admin credentials</p>
-    <input type="email" id="adminEmail" placeholder="Admin Email" autocomplete="off">
+    <p style="margin-bottom:1.2rem;">Enter admin credentials</p>
+    <input type="email" id="adminEmail" placeholder="Admin Email">
     <input type="password" id="adminPassword" placeholder="Password">
-    <button id="adminLoginBtn" class="btn-primary" style="margin-top:0;">Sign In</button>
+    <button id="adminLoginBtn" class="btn-primary">Sign In</button>
     <div id="adminLoginError" class="login-error"></div>
-    <p style="font-size:0.7rem; color:#888; margin-top:1rem;">Authorized personnel only</p>
+    <p style="font-size:0.7rem; margin-top:1rem;">Authorized personnel only</p>
   </div>
 </div>
 
 <!-- Main Admin Panel -->
 <div id="adminPanel" style="display:none;">
-  <div class="app-container" style="max-width: 1400px; margin: 1.5rem auto;">
+  <div class="app-container">
     <header class="main-header">
       <div class="logo-area">
         <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
         <div class="logo-text"><h1>Admin Panel</h1><span>Master Minds – The Learning Hub</span></div>
       </div>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <a href="index.html" class="header-back-btn"><i class="fas fa-home"></i> Home</a>
         <a href="fee-entry.html" class="header-back-btn"><i class="fas fa-file-invoice"></i> Fee Entry</a>
         <button id="adminLogoutBtn" class="header-back-btn" style="background:#c62828;"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -219,6 +306,10 @@
         <div class="card">
           <div class="card-header"><i class="fas fa-users"></i><h3>Student List</h3></div>
           <div class="card-body">
+            <div class="search-bar">
+              <input type="text" id="studentSearch" placeholder="Search by Hall Ticket or Name...">
+              <button id="addStudentBtn" class="btn-primary" style="background: #2e7d32;"><i class="fas fa-user-plus"></i> Add Student</button>
+            </div>
             <div class="admin-table" id="studentsTable">Loading...</div>
           </div>
         </div>
@@ -235,8 +326,8 @@
       </div>
     </div>
 
-    <footer class="main-footer">
-      <p>Developed by Karthik Bonagiri &nbsp;|&nbsp; Master Minds – The Learning Hub &nbsp;|&nbsp; +91 90148 95357</p>
+    <footer>
+      <p>Developed by Karthik Bonagiri | Master Minds – The Learning Hub | +91 90148 95357</p>
     </footer>
   </div>
 </div>
@@ -279,11 +370,25 @@
   </div>
 </div>
 
-<script>
-// Firebase Auth
-const auth = firebase.auth();
+<!-- Add Student Modal -->
+<div id="addStudentModal" class="modal">
+  <div class="modal-card">
+    <h3><i class="fas fa-user-plus"></i> Add New Student</h3>
+    <input type="text" id="newHallTicket" placeholder="Hall Ticket *">
+    <input type="text" id="newName" placeholder="Name *">
+    <input type="text" id="newFatherName" placeholder="Father Name">
+    <input type="text" id="newGroup" placeholder="Group">
+    <input type="text" id="newResult" placeholder="Result">
+    <div class="form-buttons">
+      <button class="btn-secondary" id="cancelAddBtn">Cancel</button>
+      <button class="btn-primary" id="confirmAddBtn">Save</button>
+    </div>
+  </div>
+</div>
 
-// Only this email can access admin panel (change as needed)
+<script>
+// Firebase Auth and Admin Login
+const auth = firebase.auth();
 const ADMIN_EMAIL = "admin@masterminds.com";
 
 const adminLoginOverlay = document.getElementById('adminLoginOverlay');
@@ -294,7 +399,6 @@ const adminLoginBtn = document.getElementById('adminLoginBtn');
 const adminLoginError = document.getElementById('adminLoginError');
 const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-// Auth state listener
 auth.onAuthStateChanged(async (user) => {
   if (user && user.email === ADMIN_EMAIL) {
     adminLoginOverlay.style.display = 'none';
@@ -319,15 +423,12 @@ adminLoginBtn.addEventListener('click', async () => {
   }
 });
 
-// ✅ Logout redirects to index.html
 adminLogoutBtn.addEventListener('click', async () => {
   await auth.signOut();
   window.location.href = 'index.html';
 });
 
-// ─────────────────────────────────────────────
-// Data management
-// ─────────────────────────────────────────────
+// Data variables
 let students = [];
 let payments = [];
 
@@ -338,7 +439,7 @@ async function saveStudentsToCloud() {
   XLSX.utils.book_append_sheet(wb, ws, 'Students');
   const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  const file = new File([blob], 'students.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const file = new File([blob], 'students.xlsx');
   await studentsExcelRef.put(file);
 }
 
@@ -362,14 +463,22 @@ async function loadPayments() {
   }
 }
 
+// Render Students Table with search filter
 function renderStudentsTable() {
+  const searchTerm = document.getElementById('studentSearch')?.value.trim().toLowerCase() || '';
+  const filtered = students.filter(s => 
+    String(s['Hall Ticket']).toLowerCase().includes(searchTerm) ||
+    (s['Name'] && s['Name'].toLowerCase().includes(searchTerm))
+  );
   const container = document.getElementById('studentsTable');
-  if (!students.length) {
+  if (!filtered.length) {
     container.innerHTML = '<div class="empty-state">No students found.</div>';
     return;
   }
-  let html = `<tr><thead><tr><th>Hall Ticket</th><th>Name</th><th>Father Name</th><th>Group</th><th>Result</th><th>Actions</th></tr></thead><tbody>`;
-  students.forEach(s => {
+  let html = `<div class="admin-table"><table class="data-table">
+    <thead><tr><th>Hall Ticket</th><th>Name</th><th>Father Name</th><th>Group</th><th>Result</th><th>Actions</th></tr></thead>
+    <tbody>`;
+  filtered.forEach(s => {
     html += `<tr>
       <td>${escapeHtml(s['Hall Ticket'])}</td>
       <td>${escapeHtml(s['Name'])}</td>
@@ -382,7 +491,7 @@ function renderStudentsTable() {
       </td>
     </tr>`;
   });
-  html += `</tbody></table>`;
+  html += `</tbody></table></div>`;
   container.innerHTML = html;
 
   // Attach edit events
@@ -415,6 +524,41 @@ function renderStudentsTable() {
   });
 }
 
+// Add Student modal
+const addStudentBtn = document.getElementById('addStudentBtn');
+const addModal = document.getElementById('addStudentModal');
+const cancelAddBtn = document.getElementById('cancelAddBtn');
+const confirmAddBtn = document.getElementById('confirmAddBtn');
+const newHallTicket = document.getElementById('newHallTicket');
+const newName = document.getElementById('newName');
+const newFatherName = document.getElementById('newFatherName');
+const newGroup = document.getElementById('newGroup');
+const newResult = document.getElementById('newResult');
+
+addStudentBtn.addEventListener('click', () => addModal.style.display = 'flex');
+cancelAddBtn.addEventListener('click', () => addModal.style.display = 'none');
+confirmAddBtn.addEventListener('click', async () => {
+  const ht = newHallTicket.value.trim();
+  const name = newName.value.trim();
+  if (!ht || !name) { showToast('Hall Ticket and Name required', 'warning'); return; }
+  if (students.some(s => String(s['Hall Ticket']) === ht)) { showToast('Hall Ticket exists', 'error'); return; }
+  const newStudent = {
+    'Hall Ticket': ht,
+    'Name': name,
+    'Father Name': newFatherName.value.trim() || '',
+    'Group': newGroup.value.trim() || '',
+    'Result': newResult.value.trim() || ''
+  };
+  students.push(newStudent);
+  try {
+    await saveStudentsToCloud();
+    showToast(`Student ${name} added`, 'success');
+    addModal.style.display = 'none';
+    newHallTicket.value = ''; newName.value = ''; newFatherName.value = ''; newGroup.value = ''; newResult.value = '';
+    renderStudentsTable();
+  } catch (err) { showToast('Failed: ' + err.message, 'error'); students.pop(); }
+});
+
 function openEditStudentModal(student) {
   document.getElementById('editHallTicket').value = student['Hall Ticket'];
   document.getElementById('editName').value = student['Name'];
@@ -444,13 +588,16 @@ document.getElementById('closeEditStudent').addEventListener('click', () => {
   document.getElementById('editStudentModal').style.display = 'none';
 });
 
+// Payment table rendering (unchanged, but we add search filter for payments too)
 function renderPaymentsTable() {
   const container = document.getElementById('paymentsTable');
   if (!payments.length) {
     container.innerHTML = '<div class="empty-state">No payments found.</div>';
     return;
   }
-  let html = `<table><thead><tr><th>Hall Ticket</th><th>Name</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Mode</th><th>UTR</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
+  let html = `<div class="admin-table"><table class="data-table">
+    <thead><tr><th>Hall Ticket</th><th>Name</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Mode</th><th>UTR</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>`;
   payments.forEach(p => {
     const total = (parseFloat(p.regularFee)||0) + (parseFloat(p.backlogFee)||0);
     html += `<tr>
@@ -468,10 +615,9 @@ function renderPaymentsTable() {
       </td>
     </tr>`;
   });
-  html += `</tbody></table>`;
+  html += `</tbody></table></div>`;
   container.innerHTML = html;
 
-  // Attach edit events
   document.querySelectorAll('#paymentsTable .edit-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-id');
@@ -479,13 +625,12 @@ function renderPaymentsTable() {
       if (payment) openEditPaymentModal(payment);
     });
   });
-  // Attach delete events
   document.querySelectorAll('#paymentsTable .delete-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-id');
       const payment = payments.find(p => p.id === id);
       if (!payment) return;
-      if (!confirm(`Delete payment for ${payment.name} (₹${payment.regularFee} + ₹${payment.backlogFee})?`)) return;
+      if (!confirm(`Delete payment for ${payment.name}?`)) return;
       await paymentsCollection.doc(id).delete();
       payments = payments.filter(p => p.id !== id);
       showToast('Payment deleted', 'success');
@@ -513,16 +658,9 @@ document.getElementById('saveEditPayment').addEventListener('click', async () =>
   const mode = document.getElementById('editMode').value;
   let utr = document.getElementById('editUtr').value.trim();
   const date = document.getElementById('editDate').value;
-  if (mode === 'Online' && !utr) { showToast('UTR required for online payment', 'warning'); return; }
+  if (mode === 'Online' && !utr) { showToast('UTR required', 'warning'); return; }
   if (mode !== 'Online') utr = '';
-  await paymentsCollection.doc(id).update({
-    regularFee: regular || '0',
-    backlogFee: backlog || '0',
-    mode: mode,
-    utr: utr,
-    date: date
-  });
-  // Update local array
+  await paymentsCollection.doc(id).update({ regularFee: regular || '0', backlogFee: backlog || '0', mode, utr, date });
   const index = payments.findIndex(p => p.id === id);
   if (index !== -1) {
     payments[index].regularFee = regular || '0';
@@ -551,6 +689,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     else renderPaymentsTable();
   });
 });
+
+// Live search for students
+document.getElementById('studentSearch').addEventListener('input', () => renderStudentsTable());
 </script>
 </body>
 </html>
