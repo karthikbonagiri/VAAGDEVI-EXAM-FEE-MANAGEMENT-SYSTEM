@@ -4,94 +4,95 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Master Minds | Payment History</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
-    /* Ensure table displays properly */
-    .table-wrapper {
-      overflow-x: auto;
-      width: 100%;
-      margin-top: 1rem;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+      padding: 1.5rem;
     }
-    .payment-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-      min-width: 900px;
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
-    .payment-table th,
-    .payment-table td {
-      border: 1px solid #dde4f0;
-      padding: 0.7rem 0.5rem;
-      text-align: left;
-      vertical-align: top;
+    .main-header {
+      background: linear-gradient(135deg, #0b2b3b, #1a4a6f);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
-    .payment-table th {
-      background: #1e4663;
+    .logo-area { display: flex; align-items: center; gap: 1rem; }
+    .logo-icon {
+      background: linear-gradient(145deg, #f5b042, #e09d2a);
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon i { font-size: 1.8rem; color: white; }
+    .logo-text h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.2rem; font-weight: 800; color: white; }
+    .logo-text span { font-size: 0.7rem; color: #f5b042; }
+    .header-back-btn {
+      background: rgba(255,255,255,0.15);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
       color: white;
+      text-decoration: none;
+      font-size: 0.8rem;
       font-weight: 600;
-      white-space: nowrap;
-    }
-    .payment-table tbody tr:hover {
-      background: #f8faff;
-    }
-    .mode-pill {
-      display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 700;
-    }
-    .mode-cash {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-    .mode-online {
-      background: #e3f2fd;
-      color: #1565c0;
-    }
-    .td-amount {
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .cors-alert-history {
-      background: #fff8e1;
-      border: 1.5px solid #fde68a;
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      display: none;
-    }
-    .local-pick {
-      border: 2px dashed #fcd34d;
-      border-radius: 10px;
-      padding: 0.8rem;
-      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: none;
       cursor: pointer;
-      background: #fffbeb;
-      margin-top: 0.6rem;
     }
-    .local-pick input { display: none; }
+    .page-content { padding: 1.5rem; }
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1e4663;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
     .summary-strip {
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
     }
     .summary-chip {
-      background: #eef2f8;
-      border: 1px solid #dde4f0;
-      border-radius: 10px;
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
+      background: #f8fafc;
+      border: 1px solid #eef2f6;
+      border-radius: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.85rem;
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     .summary-chip.green {
       background: #e8f5e9;
@@ -100,64 +101,115 @@
     }
     .filter-bar {
       display: flex;
-      gap: 0.8rem;
+      gap: 1rem;
       flex-wrap: wrap;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       align-items: flex-end;
     }
-    .filter-bar .input-group {
-      flex: 1;
-      min-width: 130px;
-    }
+    .filter-bar .input-group { flex: 1; min-width: 140px; }
     .filter-bar label {
       font-size: 0.7rem;
       font-weight: 600;
+      text-transform: uppercase;
+      color: #5c7492;
       display: block;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.3rem;
     }
     .filter-bar input, .filter-bar select {
       width: 100%;
       padding: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #dde4f0;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1rem;
+      font-family: inherit;
     }
-    .btn-primary, .btn-secondary {
-      padding: 0.6rem 1.2rem;
-      border-radius: 40px;
-      border: none;
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #1e4663;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
       font-weight: 600;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
     }
     .btn-primary {
       background: linear-gradient(95deg, #1e4663, #2b5c84);
       color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
     }
-    .btn-secondary {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      color: #1e4663;
+    .table-wrapper { overflow-x: auto; margin-top: 1rem; }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 1100px;
     }
-    .export-row {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
+    .data-table th, .data-table td {
+      border: 1px solid #eef2f6;
+      padding: 0.7rem;
+      text-align: left;
+    }
+    .data-table th { background: #1e4663; color: white; font-weight: 600; }
+    .data-table tbody tr:hover { background: #f8faff; }
+    .mode-pill {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .mode-cash { background: #e8f5e9; color: #2e7d32; }
+    .mode-online { background: #e3f2fd; color: #1565c0; }
+    .export-row { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    footer {
+      background: #0f2c3a;
+      text-align: center;
+      padding: 0.8rem;
+      font-size: 0.7rem;
+      color: #9cb8cc;
+    }
+    .cors-alert-history {
+      background: #fff8e1;
+      border: 1px solid #fde68a;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .local-pick {
+      border: 2px dashed #fcd34d;
+      border-radius: 0.8rem;
+      padding: 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      background: #fffbeb;
     }
     @media (max-width: 700px) {
+      body { padding: 0.8rem; }
+      .main-header { flex-direction: column; text-align: center; }
+      .summary-strip { flex-direction: column; }
       .filter-bar { flex-direction: column; }
       .filter-bar .input-group { width: 100%; }
       .export-row { flex-direction: column; }
-      .summary-strip { flex-direction: column; }
-      .payment-table { font-size: 0.7rem; }
-      .payment-table th, .payment-table td { padding: 0.4rem; }
     }
   </style>
 </head>
 <body>
-
-<div class="app-container" style="max-width:1400px; margin:1.5rem auto;">
+<div id="loginOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+  <div class="login-card" style="background:white; padding:2rem; border-radius:2rem; max-width:360px; width:90%; text-align:center;">
+    <i class="fas fa-lock" style="font-size:3rem; color:#f5b042;"></i>
+    <h2>Payment History</h2>
+    <p style="margin-bottom:1rem;">Please log in to continue</p>
+    <input type="email" id="loginEmail" placeholder="Email" style="width:100%; margin:0.5rem 0; padding:0.75rem; border-radius:2rem; border:1px solid #ddd;">
+    <input type="password" id="loginPassword" placeholder="Password" style="width:100%; margin:0.5rem 0; padding:0.75rem; border-radius:2rem; border:1px solid #ddd;">
+    <button id="loginBtn" class="btn-primary">Sign In</button>
+    <div id="loginError" style="color:red; margin-top:0.5rem;"></div>
+  </div>
+</div>
+<div class="app-container" id="mainApp" style="display:none;">
   <header class="main-header">
     <div class="logo-area">
       <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
@@ -165,73 +217,66 @@
     </div>
     <button id="backButton" class="header-back-btn"><i class="fas fa-arrow-left"></i> Back to Fee Entry</button>
   </header>
-
   <div class="page-content">
-    <div class="page-title"><i class="fas fa-history" style="color:var(--gold)"></i> Payment History</div>
-
-    <!-- CORS fallback for student data -->
+    <div class="page-title"><i class="fas fa-history" style="color:#f5b042"></i> Payment History</div>
     <div class="cors-alert-history" id="corsAlert">
-      <h4><i class="fas fa-exclamation-triangle"></i> Could not load student details (Group/Result)</h4>
-      <p>To show Group and Result columns, please load your students.xlsx file.</p>
+      <h4><i class="fas fa-exclamation-triangle"></i> Could not load student details</h4>
       <div class="local-pick" onclick="document.getElementById('localStudentInput').click()">
-        <i class="fas fa-folder-open" style="font-size:1.3rem;color:#b45309;margin-bottom:.3rem;display:block;"></i>
-        <p>📂 Click to load students.xlsx (for Group & Result)</p>
-        <input type="file" id="localStudentInput" accept=".xlsx,.xls">
+        📂 Click to load students.xlsx (for Group & Result)
+        <input type="file" id="localStudentInput" accept=".xlsx,.xls" style="display:none;">
       </div>
     </div>
-
-    <!-- Summary chips -->
     <div class="summary-strip" id="summaryStrip" style="display:none;">
       <div class="summary-chip"><i class="fas fa-receipt"></i> Records: <strong id="chipCount">0</strong></div>
       <div class="summary-chip green"><i class="fas fa-rupee-sign"></i> Total: <strong id="chipTotal">₹0</strong></div>
       <div class="summary-chip"><i class="fas fa-money-bill-wave"></i> Regular: <strong id="chipRegular">₹0</strong></div>
       <div class="summary-chip"><i class="fas fa-clock"></i> Backlog: <strong id="chipBacklog">₹0</strong></div>
     </div>
-
-    <!-- Filters -->
     <div class="filter-bar">
-      <div class="input-group">
-        <label><i class="fas fa-search"></i> Search</label>
-        <input type="text" id="filterSearch" placeholder="Name or Hall Ticket">
-      </div>
-      <div class="input-group">
-        <label><i class="fas fa-layer-group"></i> Group</label>
-        <select id="filterGroup"><option value="">All Groups</option></select>
-      </div>
-      <div class="input-group">
-        <label><i class="fas fa-credit-card"></i> Mode</label>
-        <select id="filterMode"><option value="">All Modes</option><option>Cash</option><option>Online</option></select>
-      </div>
-      <div class="input-group">
-        <label><i class="fas fa-calendar-alt"></i> From</label>
-        <input type="date" id="filterFrom">
-      </div>
-      <div class="input-group">
-        <label><i class="fas fa-calendar-alt"></i> To</label>
-        <input type="date" id="filterTo">
-      </div>
-      <div class="input-group" style="flex: 0;">
-        <button class="btn-secondary" id="clearFiltersBtn" style="margin-top:0;">Clear</button>
-      </div>
+      <div class="input-group"><label>Search</label><input type="text" id="filterSearch" placeholder="Name or Hall Ticket"></div>
+      <div class="input-group"><label>Group</label><select id="filterGroup"><option value="">All Groups</option></select></div>
+      <div class="input-group"><label>Mode</label><select id="filterMode"><option value="">All Modes</option><option>Cash</option><option>Online</option></select></div>
+      <div class="input-group"><label>From</label><input type="date" id="filterFrom"></div>
+      <div class="input-group"><label>To</label><input type="date" id="filterTo"></div>
+      <div class="input-group"><button class="btn-secondary" id="clearFiltersBtn">Clear</button></div>
     </div>
-
-    <!-- Table container -->
-    <div id="historyContainer">
-      <div class="placeholder-text"><i class="fas fa-spinner fa-spin"></i> Loading payment records…</div>
-    </div>
-
-    <!-- Export -->
-    <div class="export-row">
-      <button class="btn-primary" id="exportBtn"><i class="fas fa-file-excel"></i> Export to Excel</button>
-    </div>
+    <div id="historyContainer"><div class="placeholder-text" style="text-align:center; padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading payment records...</div></div>
+    <div class="export-row"><button class="btn-primary" id="exportBtn"><i class="fas fa-file-excel"></i> Export to Excel</button></div>
   </div>
-
-  <footer class="main-footer">
-    <p>Developed by Karthik Bonagiri | Master Minds – The Learning Hub | +91 90148 95357</p>
-  </footer>
+  <footer><p>Developed by Karthik Bonagiri | Master Minds – The Learning Hub | +91 90148 95357</p></footer>
 </div>
-
 <script>
+// Firebase Auth and data loading
+const auth = firebase.auth();
+const loginOverlay = document.getElementById('loginOverlay');
+const mainApp = document.getElementById('mainApp');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loginOverlay.style.display = 'none';
+    mainApp.style.display = 'block';
+    init();
+  } else {
+    loginOverlay.style.display = 'flex';
+    mainApp.style.display = 'none';
+  }
+});
+
+loginBtn.addEventListener('click', async () => {
+  const email = loginEmail.value.trim();
+  const pwd = loginPassword.value;
+  loginError.innerText = '';
+  try {
+    await auth.signInWithEmailAndPassword(email, pwd);
+  } catch (err) {
+    loginError.innerText = err.message;
+  }
+});
+
 // Back button
 document.getElementById('backButton').addEventListener('click', () => {
   window.location.replace('fee-entry.html');
@@ -254,11 +299,8 @@ async function loadStudentData() {
     updateGroupFilter();
     document.getElementById('corsAlert').style.display = 'none';
   } catch (err) {
-    if (err.type === 'CORS_ERROR' || err.type === 'FIREBASE_ERROR') {
-      document.getElementById('corsAlert').style.display = 'block';
-    } else {
-      showToast('Could not load student details: ' + err.message, 'warning');
-    }
+    console.warn(err);
+    document.getElementById('corsAlert').style.display = 'block';
   }
 }
 
@@ -268,28 +310,25 @@ function updateGroupFilter() {
   groupSelect.innerHTML = '<option value="">All Groups</option>';
   [...groupsSet].sort().forEach(g => {
     const opt = document.createElement('option');
-    opt.value = g;
-    opt.textContent = g;
+    opt.value = g; opt.textContent = g;
     groupSelect.appendChild(opt);
   });
   if (currentVal && groupsSet.has(currentVal)) groupSelect.value = currentVal;
 }
 
-// Local fallback
 document.getElementById('localStudentInput').addEventListener('change', async (e) => {
   if (!e.target.files.length) return;
   try {
     const buf = await e.target.files[0].arrayBuffer();
     const students = parseStudentsFromBuffer(buf);
-    studentMap.clear();
-    groupsSet.clear();
+    studentMap.clear(); groupsSet.clear();
     students.forEach(s => {
       studentMap.set(String(s['Hall Ticket']), s);
       if (s['Group']) groupsSet.add(s['Group']);
     });
     updateGroupFilter();
     document.getElementById('corsAlert').style.display = 'none';
-    showToast(`Loaded ${studentMap.size} students for group/result`, 'success');
+    showToast(`Loaded ${studentMap.size} students`, 'success');
     renderTable();
   } catch (err) { showToast('Error: ' + err.message, 'error'); }
   e.target.value = '';
@@ -303,6 +342,7 @@ async function loadPayments() {
     document.getElementById('summaryStrip').style.display = 'flex';
     applyFilters();
   } catch (err) {
+    console.error('Error loading payments:', err);
     document.getElementById('historyContainer').innerHTML = `<div class="empty-state">Error: ${escapeHtml(err.message)}</div>`;
   }
 }
@@ -329,7 +369,9 @@ function applyFilters() {
   filteredPayments = allPayments.filter(p => {
     const student = studentMap.get(String(p.hall));
     const studentGroup = student ? (student['Group'] || '') : '';
-    const matchSearch = !search || (p.name && p.name.toLowerCase().includes(search)) || (p.hall && String(p.hall).toLowerCase().includes(search));
+    const matchSearch = !search ||
+      (p.name && p.name.toLowerCase().includes(search)) ||
+      (p.hall && String(p.hall).toLowerCase().includes(search));
     const matchGroup = !group || studentGroup === group;
     const matchMode = !mode || p.mode === mode;
     const matchFrom = !from || p.date >= from;
@@ -348,12 +390,8 @@ function renderTable() {
     return;
   }
 
-  // Build HTML table string
-  let html = `<div class="table-wrapper"><table class="payment-table">
-    <thead>
-      <tr><th>Hall Ticket</th><th>Name</th><th>Group</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Result</th><th>Mode</th><th>UTR</th><th>Date</th></tr>
-    </thead>
-    <tbody>`;
+  let html = `<div class="table-wrapper"><table class="data-table">
+    <thead><tr><th>Hall Ticket</th><th>Name</th><th>Group</th><th>Regular (₹)</th><th>Backlog (₹)</th><th>Total (₹)</th><th>Result</th><th>Mode</th><th>UTR</th><th>Date</th></tr></thead><tbody>`;
   filteredPayments.forEach(p => {
     const student = studentMap.get(String(p.hall));
     const group = student && student['Group'] ? student['Group'] : '—';
@@ -364,20 +402,19 @@ function renderTable() {
       <td>${escapeHtml(p.hall)}</td>
       <td>${escapeHtml(p.name)}</td>
       <td>${escapeHtml(group)}</td>
-      <td class="td-amount">${formatINR(p.regularFee)}</td>
-      <td class="td-amount">${formatINR(p.backlogFee)}</td>
-      <td class="td-amount"><strong>${formatINR(total)}</strong></td>
+      <td>${formatINR(p.regularFee)}</td>
+      <td>${formatINR(p.backlogFee)}</td>
+      <td><strong>${formatINR(total)}</strong></td>
       <td>${escapeHtml(result)}</td>
       <td><span class="mode-pill ${modeClass}">${p.mode === 'Online' ? '📱' : '💵'} ${escapeHtml(p.mode)}</span></td>
       <td>${escapeHtml(p.utr || '—')}</td>
       <td>${escapeHtml(p.date)}</td>
     </tr>`;
   });
-  html += `</tbody></table></div><div style="margin-top:0.5rem; font-size:0.8rem;">Showing ${filteredPayments.length} of ${allPayments.length} records</div>`;
+  html += `</tbody></table></div><div style="margin-top:0.5rem;">Showing ${filteredPayments.length} of ${allPayments.length} records</div>`;
   container.innerHTML = html;
 }
 
-// Event listeners
 ['filterSearch', 'filterFrom', 'filterTo'].forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
 document.getElementById('filterGroup').addEventListener('change', applyFilters);
 document.getElementById('filterMode').addEventListener('change', applyFilters);
@@ -413,8 +450,10 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   showToast('Exported!', 'success');
 });
 
-loadStudentData();
-loadPayments();
+async function init() {
+  await loadStudentData();
+  await loadPayments();
+}
 </script>
 </body>
 </html>
