@@ -121,17 +121,35 @@
       align-items: center;
       gap: 0.4rem;
     }
-    .lookup-row {
-      display: flex;
+    /* Two‑column layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
       gap: 1.5rem;
       padding: 1.5rem;
-      background: #f8fafc;
-      border-bottom: 1px solid #eef2f6;
     }
-    .search-col { flex: 1; }
-    .student-detail-col { flex: 1.5; }
-    .search-wrapper { position: relative; margin-bottom: 0.75rem; }
-    .search-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .col-left {
+      background: white;
+      border-radius: 1.2rem;
+      border: 1px solid #eef2f6;
+      padding: 1rem;
+    }
+    .col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .search-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
     #search {
       width: 100%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
@@ -139,7 +157,10 @@
       border-radius: 2rem;
       font-size: 0.9rem;
     }
-    #search:focus { outline: none; border-color: #f5b042; }
+    #search:focus {
+      outline: none;
+      border-color: #f5b042;
+    }
     .clear-btn {
       position: absolute;
       right: 1rem;
@@ -162,13 +183,16 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+      width: 100%;
+      justify-content: center;
     }
     .student-info-card {
-      background: white;
-      border-radius: 1.2rem;
+      background: #f8fafc;
+      border-radius: 1rem;
       border: 1px solid #eef2f6;
       padding: 1rem;
-      min-height: 130px;
+      margin-top: 0.5rem;
+      min-height: 150px;
     }
     .student-info { font-size: 0.85rem; line-height: 1.5; }
     .student-name { font-weight: 800; font-size: 1rem; margin-bottom: 0.5rem; color: #1e4663; }
@@ -176,12 +200,6 @@
     .badge-paid { background: #e8f5e9; color: #2e7d32; }
     .badge-unpaid { background: #fff8e1; color: #b45309; }
     .placeholder-text { color: #6c86a3; text-align: center; padding: 1rem; }
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 1.5rem;
-      padding: 1.5rem;
-    }
     .card {
       background: white;
       border-radius: 1.2rem;
@@ -189,7 +207,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
     .card-header {
-      padding: 1rem 1.2rem;
+      padding: 0.8rem 1rem;
       border-bottom: 1px solid #eef2f6;
       display: flex;
       align-items: center;
@@ -289,9 +307,9 @@
     .modal-buttons { display: flex; gap: 0.8rem; margin-top: 1rem; }
     @media (max-width: 800px) {
       body { padding: 0.8rem; }
-      .lookup-row { flex-direction: column; }
       .main-grid { grid-template-columns: 1fr; }
-      .col-right { order: -1; }
+      .col-left { order: 2; }
+      .col-right { order: 1; }
       .main-header { flex-direction: column; text-align: center; }
       .header-links { justify-content: center; }
     }
@@ -322,52 +340,54 @@
       <a href="index.html" class="header-link"><i class="fas fa-home"></i> Home</a>
     </div>
   </header>
-  <div class="lookup-row">
-    <div class="search-col">
+  <div class="main-grid">
+    <!-- Left Column: Search + Student Details -->
+    <div class="col-left">
       <div class="search-wrapper">
         <i class="fas fa-search"></i>
         <input type="text" id="search" placeholder="Hall Ticket or Name" autocomplete="off">
         <button class="clear-btn" id="clearSearch"><i class="fas fa-times"></i></button>
       </div>
       <button id="addStudentBtn" class="btn-secondary"><i class="fas fa-user-plus"></i> Add New Student</button>
+      <div id="studentCard" class="student-info-card">
+        <div class="placeholder-text">Search for a student to see details</div>
+      </div>
     </div>
-    <div class="student-detail-col">
-      <div id="studentCard" class="student-info-card"><div class="placeholder-text">Select a student to see details</div></div>
-    </div>
-  </div>
-  <div class="main-grid">
-    <div class="col-left">
+
+    <!-- Right Column: Payment Form + Stats -->
+    <div class="col-right">
       <div class="card">
         <div class="card-header"><i class="fas fa-rupee-sign"></i><h3>Record Payment</h3></div>
         <div class="card-body">
           <div class="form-row">
-            <div class="input-group"><label>Regular Fee (₹)</label><input type="number" id="regular" placeholder="0" value="0" step="1" min="0"></div>
-            <div class="input-group"><label>Backlog Fee (₹)</label><input type="number" id="backlog" placeholder="0" value="0" step="1" min="0"></div>
+            <div class="input-group"><label>Regular (₹)</label><input type="number" id="regular" placeholder="0" value="0" step="1" min="0"></div>
+            <div class="input-group"><label>Backlog (₹)</label><input type="number" id="backlog" placeholder="0" value="0" step="1" min="0"></div>
           </div>
           <div id="totalDisplay" class="total-amount">Total: ₹0</div>
           <div class="form-row">
-            <div class="input-group"><label>Payment Mode</label><select id="mode"><option value="Cash">💵 Cash</option><option value="Online">📱 Online</option></select></div>
-            <div class="input-group" id="utrGroup" style="display:none;"><label>UTR / Transaction ID</label><input type="text" id="utr" placeholder="Transaction ID"></div>
+            <div class="input-group"><label>Mode</label><select id="mode"><option value="Cash">💵 Cash</option><option value="Online">📱 Online</option></select></div>
+            <div class="input-group" id="utrGroup" style="display:none;"><label>UTR</label><input type="text" id="utr" placeholder="Transaction ID"></div>
           </div>
-          <div class="form-row"><div class="input-group"><label>Payment Date</label><input type="date" id="date"></div></div>
+          <div class="form-row"><div class="input-group"><label>Date</label><input type="date" id="date"></div></div>
           <button class="btn-primary" id="savePaymentBtn"><i class="fas fa-save"></i> Save Payment</button>
         </div>
       </div>
-    </div>
-    <div class="col-right">
-      <div class="nav-links"><a href="notpaid.html" class="nav-link"><i class="fas fa-user-times"></i> Not Paid</a><a href="payment-history.html" class="nav-link"><i class="fas fa-history"></i> History</a></div>
       <div class="card">
         <div class="card-header"><i class="fas fa-chart-line"></i><h3>Quick Stats</h3></div>
         <div class="card-body">
-          <div class="stat-item"><span>📊 Total Students</span><span class="stat-value" id="statTotal">—</span></div>
-          <div class="stat-item"><span>💰 Total Paid (Unique)</span><span class="stat-value" id="statTotalPaid" style="color:#2e7d32;">—</span></div>
-          <div class="stat-item"><span>📝 Total Payments (Records)</span><span class="stat-value" id="statPaymentRecords" style="color:#1565c0;">—</span></div>
-          <div class="stat-item"><span>✅ Regular Paid</span><span class="stat-value" id="statRegular" style="color:#2e7d32;">—</span></div>
-          <div class="stat-item"><span>🔄 Only Backlog</span><span class="stat-value" id="statOnlyBacklog" style="color:#f5b042;">—</span></div>
-          <div class="stat-item"><span>🏷️ Regular & Backlog</span><span class="stat-value" id="statBoth" style="color:#1565c0;">—</span></div>
-          <div class="stat-item"><span>❌ Not Paid (Regular)</span><span class="stat-value" id="statNotPaid" style="color:#c62828;">—</span></div>
-          <div class="stat-item"><span>💰 Total Collected</span><span class="stat-value" id="statCollected">—</span></div>
+          <div class="stat-item"><span>Total Students</span><span class="stat-value" id="statTotal">—</span></div>
+          <div class="stat-item"><span>Total Paid (Unique)</span><span class="stat-value" id="statTotalPaid" style="color:#2e7d32;">—</span></div>
+          <div class="stat-item"><span>Total Payments</span><span class="stat-value" id="statPaymentRecords" style="color:#1565c0;">—</span></div>
+          <div class="stat-item"><span>Regular Paid</span><span class="stat-value" id="statRegular" style="color:#2e7d32;">—</span></div>
+          <div class="stat-item"><span>Only Backlog</span><span class="stat-value" id="statOnlyBacklog" style="color:#f5b042;">—</span></div>
+          <div class="stat-item"><span>Regular & Backlog</span><span class="stat-value" id="statBoth" style="color:#1565c0;">—</span></div>
+          <div class="stat-item"><span>Not Paid (Regular)</span><span class="stat-value" id="statNotPaid" style="color:#c62828;">—</span></div>
+          <div class="stat-item"><span>Total Collected</span><span class="stat-value" id="statCollected">—</span></div>
         </div>
+      </div>
+      <div class="nav-links">
+        <a href="notpaid.html" class="nav-link">Not Paid</a>
+        <a href="payment-history.html" class="nav-link">History</a>
       </div>
       <div class="card">
         <div class="card-header"><i class="fas fa-cloud-upload-alt"></i><h3>Cloud Storage</h3></div>
@@ -462,8 +482,7 @@ if (modeEl) modeEl.addEventListener('change', () => {
 async function loadStats() {
   try {
     const snap = await paymentsCollection.get();
-    const payments = [];
-    snap.forEach(doc => payments.push(doc.data()));
+    const payments = []; snap.forEach(doc => payments.push(doc.data()));
     paymentRecordsCount = snap.size;
     regularPaidSet.clear();
     backlogPaidSet.clear();
@@ -496,7 +515,7 @@ async function loadStats() {
 }
 async function onStudentsLoaded() {
   document.getElementById('statTotal').textContent = students.length;
-  cardEl.innerHTML = '<div class="placeholder-text">Select a student to see details</div>';
+  cardEl.innerHTML = '<div class="placeholder-text">Search for a student</div>';
   await loadStats();
 }
 function setCardError(msg, showCors=false) {
@@ -541,7 +560,7 @@ confirmAddBtn.addEventListener('click',async()=>{
     newHallTicket.value=''; newName.value=''; newFatherName.value=''; newGroup.value=''; newResult.value='';
     document.getElementById('statTotal').textContent=students.length;
     await loadStats();
-    if(searchEl.value.trim()==='') cardEl.innerHTML='<div class="placeholder-text">Select a student</div>';
+    if(searchEl.value.trim()==='') cardEl.innerHTML='<div class="placeholder-text">Search for a student</div>';
     else searchEl.dispatchEvent(new Event('input'));
   } catch(err){ showToast('Save failed: '+err.message,'error'); students.pop(); }
 });
@@ -561,7 +580,7 @@ if(localInput) localInput.addEventListener('change',async()=>{
 searchEl.addEventListener('input',function(){
   const val=this.value.trim().toLowerCase();
   clearBtn.style.display=val?'flex':'none';
-  if(!val){ cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; return; }
+  if(!val){ cardEl.innerHTML='<div class="placeholder-text">Search for a student</div>'; selectedStudent=null; return; }
   const found=students.find(s=>String(s['Hall Ticket']).toLowerCase()===val||(s['Name']&&s['Name'].toLowerCase().includes(val)));
   if(found){
     selectedStudent=found;
@@ -579,16 +598,13 @@ searchEl.addEventListener('input',function(){
     selectedStudent=null;
   }
 });
-clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text">Select a student to see details</div>'; selectedStudent=null; });
+clearBtn.addEventListener('click',()=>{ searchEl.value=''; clearBtn.style.display='none'; cardEl.innerHTML='<div class="placeholder-text">Search for a student</div>'; selectedStudent=null; });
 
 async function findExistingPayment(hall) {
   const snapshot = await paymentsCollection.where('hall', '==', hall).get();
-  if (!snapshot.empty) {
-    return { doc: snapshot.docs[0], data: snapshot.docs[0].data() };
-  }
+  if (!snapshot.empty) return { doc: snapshot.docs[0], data: snapshot.docs[0].data() };
   return null;
 }
-
 async function isUtrDuplicate(utr, excludeId = null) {
   if (!utr) return false;
   let query = paymentsCollection.where('utr', '==', utr);
@@ -597,7 +613,6 @@ async function isUtrDuplicate(utr, excludeId = null) {
   if (excludeId && snapshot.docs[0].id === excludeId) return false;
   return true;
 }
-
 saveBtn.addEventListener('click', async () => {
   if (!selectedStudent) { showToast('Select a student first', 'warning'); return; }
   let regular = parseFloat(regularEl.value) || 0;
@@ -606,72 +621,45 @@ saveBtn.addEventListener('click', async () => {
   let utr = utrEl.value.trim();
   let date = dateEl.value;
   if (regular === 0 && backlog === 0) { showToast('Enter at least one amount', 'warning'); return; }
-  if (mode === 'Online' && !utr) { showToast('UTR required for online payment', 'warning'); return; }
+  if (mode === 'Online' && !utr) { showToast('UTR required', 'warning'); return; }
   if (mode !== 'Online') utr = '';
   if (!date) date = new Date().toISOString().split('T')[0];
-
   const ht = String(selectedStudent['Hall Ticket']);
   const existing = await findExistingPayment(ht);
-  let docId = null;
-
-  // Check UTR duplicate (excluding current payment if updating)
   if (mode === 'Online' && utr) {
     const duplicate = await isUtrDuplicate(utr, existing ? existing.doc.id : null);
     if (duplicate) { showToast('UTR already used', 'error'); return; }
   }
-
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
+  saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
   try {
     if (existing) {
-      // Update existing record: add new amounts to existing fees
-      docId = existing.doc.id;
       const oldRegular = parseFloat(existing.data.regularFee) || 0;
       const oldBacklog = parseFloat(existing.data.backlogFee) || 0;
       const newRegular = oldRegular + regular;
       const newBacklog = oldBacklog + backlog;
-      await paymentsCollection.doc(docId).update({
+      await paymentsCollection.doc(existing.doc.id).update({
         regularFee: newRegular.toString(),
         backlogFee: newBacklog.toString(),
-        mode: mode,  // update mode to latest payment mode
+        mode: mode,
         utr: utr,
         date: date,
         timestamp: Date.now()
       });
       showToast(`Payment updated for ${selectedStudent['Name']}`, 'success');
     } else {
-      // Create new payment record
       await paymentsCollection.add({
-        hall: ht,
-        name: selectedStudent['Name'],
-        fatherName: selectedStudent['Father Name'] || '',
-        group: selectedStudent['Group'] || '',
-        regularFee: regular.toString(),
-        backlogFee: backlog.toString(),
-        mode: mode,
-        utr: utr,
-        date: date,
-        timestamp: Date.now()
+        hall: ht, name: selectedStudent['Name'], fatherName: selectedStudent['Father Name'] || '', group: selectedStudent['Group'] || '',
+        regularFee: regular.toString(), backlogFee: backlog.toString(), mode, utr, date, timestamp: Date.now()
       });
       showToast(`Payment saved for ${selectedStudent['Name']}`, 'success');
     }
-    // Refresh stats and UI
-    regularEl.value = '0';
-    backlogEl.value = '0';
-    utrEl.value = '';
-    dateEl.value = new Date().toISOString().split('T')[0];
+    regularEl.value = '0'; backlogEl.value = '0'; utrEl.value = ''; dateEl.value = new Date().toISOString().split('T')[0];
     updateTotal();
     await loadStats();
-    searchEl.dispatchEvent(new Event('input'));  // refresh student card badge
-  } catch (err) {
-    showToast('Save failed: ' + err.message, 'error');
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Payment';
-  }
+    searchEl.dispatchEvent(new Event('input'));
+  } catch (err) { showToast('Save failed: ' + err.message, 'error'); }
+  finally { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Payment'; }
 });
-
 uploadArea.addEventListener('click',()=>uploadInput.click());
 uploadInput.addEventListener('change',()=>{ if(uploadInput.files[0]) document.getElementById('uploadAreaText').innerHTML = uploadInput.files[0].name; });
 uploadBtn.addEventListener('click',async()=>{
