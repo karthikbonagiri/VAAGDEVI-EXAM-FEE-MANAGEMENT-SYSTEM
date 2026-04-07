@@ -15,7 +15,6 @@
   <script src="firebase-config.js"></script>
   <script src="utils.js"></script>
   <style>
-    /* Admin panel specific styles */
     .admin-tabs {
       display: flex;
       gap: 0.5rem;
@@ -45,7 +44,7 @@
     .admin-table table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 600px;
+      min-width: 800px;
     }
     .admin-table th, .admin-table td {
       border: 1px solid var(--border);
@@ -105,7 +104,6 @@
       justify-content: flex-end;
       margin-top: 1rem;
     }
-    /* Admin login overlay */
     #adminLoginOverlay {
       position: fixed;
       top: 0;
@@ -144,8 +142,6 @@
       font-size: 0.8rem;
       margin-top: 0.5rem;
     }
-
-    /* Mobile responsive */
     @media (max-width: 700px) {
       .main-header {
         flex-direction: column;
@@ -362,7 +358,7 @@ async function loadPayments() {
     snap.forEach(doc => payments.push({ id: doc.id, ...doc.data() }));
     renderPaymentsTable();
   } catch (err) {
-    document.getElementById('paymentsTable').innerHTML = `<div class="empty-state">Error: ${err.message}</div>`;
+    document.getElementById('paymentsTable').innerHTML = `<div class="empty-state">Error loading payments: ${err.message}</div>`;
   }
 }
 
@@ -372,7 +368,7 @@ function renderStudentsTable() {
     container.innerHTML = '<div class="empty-state">No students found.</div>';
     return;
   }
-  let html = `<table><thead><tr><th>Hall Ticket</th><th>Name</th><th>Father Name</th><th>Group</th><th>Result</th><th>Actions</th></tr></thead><tbody>`;
+  let html = `<tr><thead><tr><th>Hall Ticket</th><th>Name</th><th>Father Name</th><th>Group</th><th>Result</th><th>Actions</th></tr></thead><tbody>`;
   students.forEach(s => {
     html += `<tr>
       <td>${escapeHtml(s['Hall Ticket'])}</td>
